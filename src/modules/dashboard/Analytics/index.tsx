@@ -31,7 +31,7 @@ const Analitycs = () => {
     dispatch(onGetBookingData());
   }, [dispatch]);
 
-  const {bookingData} = useSelector<AppState, AppState['dashboard']>(
+  const {bookings: bookingData} = useSelector<AppState, AppState['dashboard']>(
     ({dashboard}) => dashboard,
   );
 
@@ -44,12 +44,11 @@ const Analitycs = () => {
   } else {
     return (
     <>
-      <Box mb={6} display='flex' flexDirection='row' justifyContent='flex-end'>
+      {/* <Box mb={6} display='flex' flexDirection='row' justifyContent='flex-end'>
         <FormControlLabel
         control={
           <Switch
             checked={true}
-            // onChange={handleChange('checkedB')}
             value='checkedB'
             color='primary'
           />
@@ -63,7 +62,7 @@ const Analitycs = () => {
           onClick={() => setAddDialogOpen(true)}>
           予約の追加
         </Button>
-      </Box>
+      </Box> */}
       { bookingData?.bookingList && bookingData?.bookingList.length > 0 ? (
         <Box >
           <GridContainer>

@@ -50,7 +50,7 @@ const CremaLayout: React.FC<CremaLayoutProps> = () => {
       {user ? (
         <AppLayout />
       ) : (
-        <Box className={classes.appAuth}>
+        <Box>
           <ContentView />
         </Box>
       )}

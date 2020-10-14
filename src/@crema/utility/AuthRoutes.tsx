@@ -49,11 +49,13 @@ const AuthRoutes: React.FC<AuthRoutesProps> = ({children}) => {
     
     if (!loading) {
       // console.log("currentRoute.auth:" + currentRoute.auth)
-      // console.log("currentRoute.auth.length:" + currentRoute.auth.length)
-      // console.log("token" + token)
+      // console.log("token:" + token)
+      // console.log("pathname:" + pathname)
       if (!token && currentRoute.auth && currentRoute.auth.length >= 1) {
-        console.log("-> signin")
-        history.push('/signin');
+        if (!pathname.startsWith('/booking/')) {
+            console.log("-> signin")
+            history.push('/signin');
+          }
       } else if (
         (pathname === '/signin' ||
           pathname === '/signup' ||
@@ -62,7 +64,6 @@ const AuthRoutes: React.FC<AuthRoutesProps> = ({children}) => {
           pathname === '/forget-password') &&
         token
       ) {
-
         console.log("-> else")
         console.log("pathname:" + pathname)
         // @ts-ignore

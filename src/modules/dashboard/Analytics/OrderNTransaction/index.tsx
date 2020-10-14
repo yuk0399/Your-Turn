@@ -12,8 +12,6 @@ const OrderNTransaction: React.FC<Props> = ({bookingData}) => {
   const {messages} = useIntl();
   return (
     <AppCard
-      height={1}
-      title={messages['dashboard.analytics.ordersTransaction']}
       >
       <TransactionTable bookingList={bookingData.bookingList} />
     </AppCard>

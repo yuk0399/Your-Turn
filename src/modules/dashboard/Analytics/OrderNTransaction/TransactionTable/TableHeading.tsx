@@ -13,13 +13,13 @@ interface Props {
 const TableHeading: React.FC<Props> = (props) => {
   const useStyles = makeStyles((theme: CremaTheme) => ({
     tableRowRoot: {
-      color: grey[500],
+      // color: grey[500],
     },
     tableCellRoot: {
-      borderBottom: '0 none',
+      borderBottom: '1px solid #e0e0e0',
       fontSize: 16,
       padding: 8,
-      fontFamily: Fonts.LIGHT,
+      fontFamily: Fonts.BOLD,
       '&:first-child': {
         [theme.breakpoints.up('xl')]: {
           paddingLeft: 4,
@@ -45,10 +45,10 @@ const TableHeading: React.FC<Props> = (props) => {
         ステータス
       </TableCell>
       <TableCell align='left' className={classes.tableCellRoot}>
-        お名前・診察番号
+        飼い主様
       </TableCell>
       <TableCell align='left' className={classes.tableCellRoot}>
-        受診頭数・内容
+        ペット
       </TableCell>
       <TableCell align='left' className={classes.tableCellRoot}>
         受付時刻

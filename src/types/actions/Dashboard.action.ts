@@ -1,21 +1,24 @@
-import { BookingData } from './../models/Analytics';
-import {Metrics} from '../models/Metrics';
-import {Analytics, Bookings} from '../models/Analytics';
-import {CRM} from '../models/CRM';
-import {Crypto} from '../models/Crypto';
-import {Widgets} from '../models/Widgets';
+import { BookingData, BookingConfig } from './../models/Analytics';
+import {Bookings} from '../models/Analytics';
 
 export const GET_BOOKING_DATA = 'GET_BOOKING_DATA';
+export const GET_BOOKING_CONFIG = 'GET_BOOKING_CONFIG';
+export const GET_LATEST_BOOKED_NUMBER = 'GET_LATEST_BOOKED_NUMBER';
 export const CREATE_BOOKING_DATA = 'CREATE_BOOKING_DATA';
-export const GET_ANALYTICS_DATA = 'GET_ANALYTICS_DATA';
-export const GET_CRM_DATA = 'GET_CRM_DATA';
-export const GET_CRYPTO_DATA = 'GET_CRYPTO_DATA';
-export const GET_METRICS_DATA = 'GET_METRICS_DATA';
-export const GET_WIDGETS_DATA = 'GET_WIDGETS_DATA';
 
 export interface GetBookingAction {
   type: typeof GET_BOOKING_DATA;
   payload: Bookings;
+}
+
+export interface GetBookingConfigAction {
+  type: typeof GET_BOOKING_CONFIG;
+  payload: BookingConfig;
+}
+
+export interface GetBookedNumberAction {
+  type: typeof GET_LATEST_BOOKED_NUMBER;
+  payload: number;
 }
 
 export interface CreateBookingAction {
@@ -23,36 +26,8 @@ export interface CreateBookingAction {
   payload: BookingData;
 }
 
-export interface GetAnalyticsAction {
-  type: typeof GET_ANALYTICS_DATA;
-  payload: Analytics;
-}
-
-export interface GetCRMAction {
-  type: typeof GET_CRM_DATA;
-  payload: CRM;
-}
-
-export interface GetCryptosAction {
-  type: typeof GET_CRYPTO_DATA;
-  payload: Crypto;
-}
-
-export interface GetMetricsAction {
-  type: typeof GET_METRICS_DATA;
-  payload: Metrics;
-}
-
-export interface GetWidgetsAction {
-  type: typeof GET_WIDGETS_DATA;
-  payload: Widgets;
-}
-
 export type DashboardActionTypes =
   | GetBookingAction
-  | CreateBookingAction
-  | GetAnalyticsAction
-  | GetCRMAction
-  | GetCryptosAction
-  | GetMetricsAction
-  | GetWidgetsAction;
+  | GetBookingConfigAction
+  | GetBookedNumberAction
+  | CreateBookingAction;

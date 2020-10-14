@@ -17,21 +17,21 @@ const routesConfig = [
             title: 'booking list',
             messageId: 'sidebar.app.booking.list',
             type: 'item',
-            url: '/dashboards/analytics',
+            url: '/booking-list',
           },
           {
             id: 'analytics',
             title: 'booking status',
             messageId: 'sidebar.app.booking.status',
             type: 'item',
-            url: '/dashboards/booking',
+            url: '/booking',
           },
           {
             id: 'analytics',
             title: 'booking config',
             messageId: 'sidebar.app.booking.config',
             type: 'item',
-            url: '/dashboards/booking-config',
+            url: '/booking-config',
           },
         ],
       },
@@ -54,7 +54,7 @@ const routesConfig = [
             title: 'logout',
             messageId: 'sidebar.app.account.logout',
             type: 'item',
-            url: '/signin',
+            url: '/signout',
           }
         ],
       }

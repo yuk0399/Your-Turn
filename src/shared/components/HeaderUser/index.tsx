@@ -121,34 +121,7 @@ const HeaderUser = (props: any) => {
                 </Box>
               </Box>
             </Hidden>
-            <Box
-              ml={{md: 3}}
-              className={classes.pointer}
-              color={
-                themeMode === ThemeMode.DARK || !props.header
-                  ? 'white'
-                  : '#313541'
-              }>
-              <Box component='span' onClick={handleClick}>
-                <ExpandMoreIcon />
-              </Box>
-              <Menu
-                id='simple-menu'
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}>
-                <MenuItem>My account</MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    if (user) {
-                      dispatch(onSignOutFirebaseUser());
-                    }
-                  }}>
-                  Logout
-                </MenuItem>
-              </Menu>
-            </Box>
+            
           </Box>
         </Box>
       </Box>

@@ -75,24 +75,6 @@ const UserInfo: React.FC<UserInfoProps> = (props) => {
           <Avatar className={classes.avatar}>{getUserAvatar()}</Avatar>
         )}
       </Box>
-      <Box className={classes.userInfo}>
-        <Menu
-          id='simple-menu'
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}>
-          <MenuItem>My account</MenuItem>
-          <MenuItem
-            onClick={() => {
-              if (user) {
-                dispatch(onSignOutFirebaseUser());
-              }
-            }}>
-            Logout
-          </MenuItem>
-        </Menu>
-      </Box>
     </Box>
   );
 };

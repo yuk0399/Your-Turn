@@ -1,125 +1,45 @@
-export interface WelcomeCardData {
-  id: number;
-  type: string;
-  counts: number;
-}
-
-export interface RevenueCards {
-  id: number;
-  type: string;
-  value: string;
-  growth: number;
-  icon: string;
-  strokeColor: string;
-  graphData: {month: string; number: number}[];
-}
-
-export interface SalesStateData {
-  id: number;
-  amount: string;
-  type: string;
-  icon: string;
-}
-
-export interface ChartData {
-  title: string;
-  value: number;
-  color: string;
-}
-
-export interface ActiveVisitorsProps {
-  growth: number;
-  value: number;
-  slug: string;
-  graphData: {time: string; value: number}[];
-}
-
-export interface TopSellingProduct {
+export interface InfoWidgets {
   id: number;
   icon: string;
-  name: string;
-  description: string;
-  price: number;
-  rate: number;
-  color: string;
-}
-
-export interface EarningData {
-  id: number;
-  color: string;
-  amount: number;
-  country: string;
-}
-
-export interface Tickets {
-  id: number;
-  name: string;
-  opened: number;
-  overAllPercentage: {
-    open: number;
-    close: number;
-    hold: number;
-  };
-}
-
-export interface PageVisit {
-  id: number;
-  page: string;
-  pageView: number;
-  visitors: number;
-}
-
-export interface TransactionData {
-  id: string;
-  customer: string;
-  date: string;
-  paymentType: string;
-  status: string;
+  count: number;
+  suspension: number;
+  details: string;
+  bgColor: string;
 }
 
 export interface BookingData {
+  id: string;
   orderNumber: number;
   medical_number: string;
   status: number;
   name: string;
   email: string;
   number: number;
-  content: string;
+  pet_name1: string;
+  content1: string;
+  pet_name2: string;
+  content2: string;
+  pet_name3: string;
+  content3: string;
   date: string;
   time: string;
+  directBooked: boolean;
 }
 
-export interface InfoWidgets {
-  id: number;
-  icon: string;
-  count: number;
-  details: string;
-  bgColor: string;
-}
 
-export interface TrafficData {
-  id: number;
+
+export interface BookingConfig {
+  photoUrl: string;
+  open_time1: string;
+  close_time1: string;
+  open_time2: string;
+  close_time2: string;
   title: string;
-  value: number;
-  session: number;
+  notes: string;
+  bookingFlg: boolean;
+  flgDate: string;
 }
 
 export interface Bookings {
   bookingList: BookingData[];
-}
-
-export interface Analytics {
-  welcomeCard: WelcomeCardData[];
-  revenueCards: RevenueCards[];
-  salesState: SalesStateData[];
-  salesChartData: ChartData[];
-  visitorsPageView: ChartData[];
-  activeVisitors: ActiveVisitorsProps;
-  topSellingProduct: TopSellingProduct[];
-  earningData: EarningData[];
-  tickets: Tickets[];
-  pageVisits: PageVisit[];
-  transactionData: TransactionData[];
-  infoWidgets: InfoWidgets[];
-  trafficData: TrafficData[];
 }

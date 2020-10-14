@@ -1,14 +1,13 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import {Checkbox, Avatar} from '@material-ui/core';
 import {Form, Formik, useField} from 'formik';
 import * as yup from 'yup';
-import {useDispatch} from 'react-redux';
-import {Scrollbar, ComponentHeader} from '../../../@crema';
+import {useDispatch, useSelector} from 'react-redux';
+import {Scrollbar, ComponentHeader, InfoView} from '../../../@crema';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContentText from '@material-ui/core/DialogContentText';
-import { onCreateBookingData } from '../../../redux/actions';
 import {Link} from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import IntlMessages from '../../../@crema/utility/IntlMessages';
@@ -20,9 +19,11 @@ import {GridContainer} from '../../../@crema';
 import grey from '@material-ui/core/colors/grey';
 import {CremaTheme} from '../../../types/AppContextPropsType';
 import {Fonts} from 'shared/constants/AppEnums';
-import { BookingData } from 'types/models/Analytics';
+import { BookingConfig, BookingData } from 'types/models/Analytics';
 import BookingStats from '../Booking/BookingStats';
 import {blue, red} from '@material-ui/core/colors';
+import {onGetBookingData, onGetConfigData, onUpdateBookingConfig, onUpdateBookingFlg} from '../../../redux/actions';
+import {AppState} from '../../../redux/store';
 
 const MyTextField = (props: any) => {
   const [field, meta] = useField(props);
@@ -121,22 +122,101 @@ const useStyles = makeStyles((theme: CremaTheme) => ({
 }));
 
 const validationSchema = yup.object({
-  name: yup
+  open_time1: yup
     .string()
-    .required('表示名を入力してください。'),
-  number: yup
+    .required('自動受付開始時間を入力してください。'),
+  close_time1: yup
     .string()
-    .required('頭数を入力してください。'),
-  content: yup
+    .required('自動受付終了時間を入力してください。'),
+  open_time2: yup
     .string()
-    .required('診察内容を選択してください。')
+    .required('自動受付開始時間を入力してください。'),
+  close_time2: yup
+    .string()
+    .required('自動受付終了時間を入力してください。'),
+  title: yup
+    .string()
+    .required('タイトルを入力してください。'),
+  notes: yup
+    .string()
+    .required('お知らせ内容を入力してください。')
 });
 
-const BookingConfig: React.FC = () => {
+const BookingConfigForm: React.FC = () => {
   const dispatch = useDispatch();
-  
-  const [userImageURL, setUserImageURL] = React.useState('');
   const classes = useStyles();
+  
+  useEffect(() => {
+    dispatch(onGetBookingData());
+    dispatch(onGetConfigData());
+  }, [dispatch]);
+
+  const {bookings: bookingData, config: bookingConfig} = useSelector<AppState, AppState['dashboard']>(
+    ({dashboard}) => dashboard
+  );
+
+  const [userImageURL, setUserImageURL] = React.useState(bookingConfig?.photoUrl);
+
+  const getCallingNumber = () => {
+    if (bookingData) {
+      var list = bookingData.bookingList.slice();
+
+      var firstOne = list.filter(function (booking) {
+        return booking.status === 0;
+      }).sort(function(a, b) {
+        if (a.orderNumber > b.orderNumber) {
+          return 1;
+        } else {
+          return -1;
+        }
+      }).shift();
+
+      return firstOne ? firstOne.orderNumber : 0;
+    } else {
+      return 0;
+    }
+  };
+
+  const getWaitingCount = () => {
+    if (bookingData) {
+      return bookingData.bookingList.filter(function (booking) {
+        return booking.status === 0;
+      }).length;
+    } else {
+      return 0;
+    }
+  };
+
+  const getOptionString = () => {
+    let msg = '';
+    if (bookingData) {
+      let suspensionCount =  bookingData.bookingList.filter(function (booking) {
+                              return booking.status === 2;}).length;
+      if (suspensionCount > 0)
+        msg = "(" + suspensionCount + "人保留)"
+    }
+    return msg;
+  };
+
+  const getBookingDisabled = () => {
+    let flg = false;
+    var now = new Date();
+    var month =  ("0"+(now.getMonth()+1)).slice(-2);
+    var day =  ("0"+now.getDate()).slice(-2);
+    var date = now.getFullYear() + "/" + month + "/" + day
+    console.log('bookingFlg:' + bookingConfig?.bookingFlg)
+    console.log('flgDate:' + bookingConfig?.flgDate)
+    if (bookingConfig?.bookingFlg && bookingConfig?.flgDate === date) {
+      flg = true;
+    }
+
+    console.log('flg:' + flg)
+    return flg;
+  };
+
+  const onUpdateBookingDisabled = (flg: boolean) => {
+    dispatch(onUpdateBookingFlg(flg));
+  };
 
   const {getRootProps, getInputProps} = useDropzone({
     accept: 'image/*',
@@ -144,6 +224,8 @@ const BookingConfig: React.FC = () => {
       // setUserImage(URL.createObjectURL(acceptedFiles[0]));
     },
   });
+
+
 
   return (
     <Box flex={1} display='flex' flexDirection='column'>
@@ -157,16 +239,20 @@ const BookingConfig: React.FC = () => {
             <Button
               variant='contained'
               color='primary'
+              disabled={getBookingDisabled()===false}
+              onClick={() => onUpdateBookingDisabled(false)}
               className={classes.btnRoot}>
-              受付を開始する
+              受付を再開
             </Button>
           </Box>
           <Box my={2}>
             <Button
               variant='contained'
               color='secondary'
+              disabled={(getBookingDisabled())}
+              onClick={() => onUpdateBookingDisabled(true)}
               className={classes.btnRoot}>
-              受付を終了する
+              受付を一時停止
             </Button>
           </Box>
         </Box>
@@ -174,7 +260,7 @@ const BookingConfig: React.FC = () => {
           <Box mx={2}>
             <BookingStats
               bgColor={red[500]}
-              num={4}
+              num={getCallingNumber()}
               heading={"お呼び出し中"}
               unit={"番"}
           />
@@ -182,16 +268,17 @@ const BookingConfig: React.FC = () => {
           <Box mx={2}>
             <BookingStats
                 bgColor={blue[500]}
-                num={8}
+                num={getWaitingCount()}
                 heading={"お待ちの人数"}
                 unit={"人"}
+                option={getOptionString()}
               />
             </Box>
         </Box>
       </Box>
 
-      <Box p={5} borderBottom={`1px solid ${grey[300]}`}></Box>
-      <Box
+      {/* <Box p={5} borderBottom={`1px solid ${grey[300]}`}></Box> */}
+      {/* <Box
         px={{xs: 3, sm: 5, xl: 7}}
         pt={{xs: 4, xl: 6}}
         mb={1}
@@ -212,11 +299,11 @@ const BookingConfig: React.FC = () => {
           <Box {...getRootProps({className: 'dropzone'})} >
             <input {...getInputProps()} />
             <label htmlFor='icon-button-file'>
-              <Avatar variant="square" className={classes.avatar} src={userImageURL} />
+              <Avatar variant="square" className={classes.avatar} src={bookingConfig ? bookingConfig.photoUrl : ''} />
             </label>
           </Box>
         </Box>
-      </Box>
+      </Box> */}
       <Box p={5} borderBottom={`1px solid ${grey[300]}`}></Box>
       <Box
         px={{xs: 3, sm: 5, xl: 7}}
@@ -225,37 +312,32 @@ const BookingConfig: React.FC = () => {
         display='flex'
         flexDirection='column'>
         <Formik
+          enableReinitialize
           validateOnChange={true}
-          initialValues={{
-            name: '',
-            title: '当院からのお知らせ',
-            notes: 'インフルエンザが流行しています。うがい手洗いで予防を心がけてください。',
+          initialValues={{          
+            photoUrl: bookingConfig?.photoUrl,
+            open_time1: bookingConfig?.open_time1,
+            close_time1: bookingConfig?.close_time1,
+            open_time2: bookingConfig?.open_time2,
+            close_time2: bookingConfig?.close_time2,
+            title: bookingConfig?.title,
+            notes: bookingConfig?.notes
           }}
           validationSchema={validationSchema}
           onSubmit={(data, {setErrors, setSubmitting}) => {
               setSubmitting(true);
-              var now = new Date();
-              var month =  ("0"+(now.getMonth()+1)).slice(-2);
-              var day =  ("0"+now.getDate()).slice(-2);
-              var hour =  ("0"+now.getHours()).slice(-2);
-              var min =  ("0"+now.getMinutes()).slice(-2);
-              var sec =  ("0"+now.getSeconds()).slice(-2);
-
-              // let booking: BookingData = {
-              //   orderNumber: 0,
-              //   name: data.name,
-              //   status: 0,
-              //   email: data.email,
-              //   medical_number: (data.medical_number == '') ? '初診': data.medical_number,
-              //   number: data.number,
-              //   content: data.content,
-              //   date: now.getFullYear() + "/" + month + "/" + day,
-              //   time: hour + ":" + min + ":" + sec
-              // };
-              
-              // dispatch(
-              //   onCreateBookingData(booking)
-              // );
+              let config: BookingConfig = {
+                photoUrl: userImageURL ? userImageURL : '', 
+                open_time1: data.open_time1 ? data.open_time1 : '',
+                close_time1: data.close_time1 ? data.close_time1 : '',
+                open_time2: data.open_time2 ? data.open_time2 : '',
+                close_time2: data.close_time2 ? data.close_time2 : '',
+                title: data.title ? data.title : '',
+                notes: data.notes ? data.notes : '',
+                bookingFlg: false,
+                flgDate: ''
+              }
+              dispatch(onUpdateBookingConfig(config));
               setSubmitting(false);
           }}>
           {({isSubmitting}) => (
@@ -270,14 +352,16 @@ const BookingConfig: React.FC = () => {
               flexDirection={{xs: 'column', sm: 'row'}}
               justifyContent='center'
               alignItems='center'>
+                <Box width="50%">
+                  自動受付時間１
+                </Box>
                 <Box mr={4}  width="100%">
                 <MyTextField
-                  label='自動受付開始時間'
-                  name='open_time'
+                  label='開始時間'
+                  name='open_time1'
                   variant='outlined'
                   className={classes.myTextField}
                   type='time'
-                  defaultValue='09:00'
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -288,12 +372,50 @@ const BookingConfig: React.FC = () => {
                 </Box>
                 <Box width="100%">
                 <MyTextField
-                  label='自動受付終了時間'
-                  name='close_time'
+                  label='終了時間'
+                  name='close_time1'
                   variant='outlined'
                   className={classes.myTextField}
                   type='time'
-                  defaultValue='16:00'
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 600,
+                  }}
+                />
+                </Box>
+              </Box> 
+              <Box mb={{xs: 1, xl: 2}} 
+              display='flex'
+              flexDirection={{xs: 'column', sm: 'row'}}
+              justifyContent='center'
+              alignItems='center'>
+                <Box width="50%">
+                  自動受付時間２
+                </Box>
+                <Box mr={4}  width="100%">
+                <MyTextField
+                  label='開始時間'
+                  name='open_time2'
+                  variant='outlined'
+                  className={classes.myTextField}
+                  type='time'
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 600,
+                  }}
+                />
+                </Box>
+                <Box width="100%">
+                <MyTextField
+                  label='終了時間'
+                  name='close_time2'
+                  variant='outlined'
+                  className={classes.myTextField}
+                  type='time'
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -356,8 +478,9 @@ const BookingConfig: React.FC = () => {
           fontSize={18}>
         </Box>
       </Box>
+      <InfoView />
     </Box>
   );
 };
 
-export default BookingConfig;
+export default BookingConfigForm;

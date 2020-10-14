@@ -20,6 +20,14 @@ export const authRouteConfig = [
   {
     routes: [
       {
+        path: '/signout',
+        component: React.lazy(() => import('./Signout')),
+      },
+    ],
+  },
+  {
+    routes: [
+      {
         path: '/forget-password',
         component: React.lazy(() => import('./ForgetPassword')),
       },

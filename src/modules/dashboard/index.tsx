@@ -5,7 +5,7 @@ export const dashBoardConfigs = [
     auth: ['user'],
     routes: [
       {
-        path: '/dashboards/analytics',
+        path: '/booking-list',
         component: React.lazy(() => import('./Analytics')),
       },
     ],
@@ -14,7 +14,7 @@ export const dashBoardConfigs = [
     auth: ['user'],
     routes: [
       {
-        path: '/dashboards/booking',
+        path: '/booking',
         component: React.lazy(() => import('./Booking')),
       },
     ],
@@ -32,7 +32,7 @@ export const dashBoardConfigs = [
     auth: ['user'],
     routes: [
       {
-        path: '/dashboards/booking-config',
+        path: '/booking-config',
         component: React.lazy(() => import('./BookingConfig')),
       },
     ],

@@ -53,18 +53,18 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           </DialogContentText>
         </Box>
         <Box pt={2} alignContent='right'>
-          <Button
-            className={classes.btn}
-            onClick={() => onDeny(false)}
-            color='primary'>
-            <IntlMessages id='common.no' />
-          </Button>
-          <Button
+        <Button
             className={classes.btn}
             onClick={onConfirm}
             color='primary'
             autoFocus>
             <IntlMessages id='common.yes' />
+          </Button>
+          <Button
+            className={classes.btn}
+            onClick={() => onDeny(false)}
+            color='primary'>
+            <IntlMessages id='common.no' />
           </Button>
         </Box>
       </Box>

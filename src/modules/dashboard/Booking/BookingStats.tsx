@@ -10,13 +10,15 @@ interface BookingStatsProps {
   num: number;
   heading: string;
   unit: string;
+  option?: string;
 }
 
 const BookingStats: React.FC<BookingStatsProps> = ({
   bgColor,
   num,
   heading,
-  unit
+  unit,
+  option
 }) => {
   const useStyles = makeStyles((theme: CremaTheme) => ({
     statsCard: {
@@ -73,6 +75,16 @@ const BookingStats: React.FC<BookingStatsProps> = ({
               fontFamily={Fonts.MEDIUM}>
               {unit}
             </Box>
+            {option ? (
+              <Box
+              component='span'
+              ml={3}
+              fontSize={{xs: 24, xl: 48}}
+              fontFamily={Fonts.MEDIUM}>
+                {option}
+              </Box>
+              ) : (null)
+              }
           </Box>
         </Box>
       </Box>

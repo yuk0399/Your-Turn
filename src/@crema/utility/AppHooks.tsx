@@ -3,6 +3,7 @@ import {useEffect, useState} from 'react';
 import {auth as firebaseAuth} from '../services/auth/firebase/firebase';
 import {AppState} from '../../redux/store';
 import {UPDATE_FIREBASE_USER} from '../../types/actions/Auth.actions';
+import { UserData } from 'types/models/AuthUser';
 
 export const useAuthToken = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,18 @@ export const useAuthUser = () => {
   const {user} = useSelector<AppState, AppState['auth']>(({auth}) => auth);
   if (user) {
     return user;
+  }
+  return null;
+};
+
+export const useAuthUserAndInfo = () => {
+  const {user, userInfo} = useSelector<AppState, AppState['auth']>(({auth}) => auth);
+  if (user) {
+    let userData: UserData = {
+      authUser: user,
+      userInfo: userInfo? userInfo : undefined
+    }
+    return userData;
   }
   return null;
 };

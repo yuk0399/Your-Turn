@@ -5,3 +5,12 @@ export interface AuthUser {
   photoURL?: string;
   token?: string;
 }
+
+export interface UserInfo {
+  displayName: string;
+}
+
+export interface UserData {
+  authUser?: AuthUser;
+  userInfo?: UserInfo;
+}

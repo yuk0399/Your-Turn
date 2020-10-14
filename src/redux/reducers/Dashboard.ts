@@ -1,30 +1,20 @@
+import { BookingData, BookingConfig } from './../../types/models/Analytics';
 import {
   DashboardActionTypes,
   GET_BOOKING_DATA,
-  GET_ANALYTICS_DATA,
-  GET_CRM_DATA,
-  GET_CRYPTO_DATA,
-  GET_METRICS_DATA,
-  GET_WIDGETS_DATA,
+  GET_BOOKING_CONFIG,
+  GET_LATEST_BOOKED_NUMBER
 } from '../../types/actions/Dashboard.action';
-import {Metrics} from '../../types/models/Metrics';
 import {Bookings} from '../../types/models/Analytics';
-import {CRM} from '../../types/models/CRM';
-import {Crypto} from '../../types/models/Crypto';
-import {Widgets} from '../../types/models/Widgets';
 
 const initialState: {
-  bookingData: Bookings | null;
-  crmData: CRM | null;
-  cryptoData: Crypto | null;
-  metricsData: Metrics | null;
-  widgetsData: Widgets | null;
+  bookings: Bookings | null,
+  config: BookingConfig | null,
+  bookedNumber: number
 } = {
-  bookingData: null,
-  crmData: null,
-  cryptoData: null,
-  metricsData: null,
-  widgetsData: null,
+  bookings: null,
+  config: null,
+  bookedNumber: 0
 };
 
 export default (state = initialState, action: DashboardActionTypes) => {
@@ -32,37 +22,18 @@ export default (state = initialState, action: DashboardActionTypes) => {
     case GET_BOOKING_DATA:
       return {
         ...state,
-        bookingData: action.payload,
+        bookings: action.payload,
       };
-    case GET_ANALYTICS_DATA:
+    case GET_BOOKING_CONFIG:
       return {
         ...state,
-        analitycsData: action.payload,
+        config: action.payload,
       };
-    case GET_CRM_DATA:
+    case GET_LATEST_BOOKED_NUMBER:
       return {
         ...state,
-        crmData: action.payload,
+        bookedNumber: action.payload,
       };
-
-    case GET_CRYPTO_DATA:
-      return {
-        ...state,
-        cryptoData: action.payload,
-      };
-
-    case GET_METRICS_DATA:
-      return {
-        ...state,
-        metricsData: action.payload,
-      };
-
-    case GET_WIDGETS_DATA:
-      return {
-        ...state,
-        widgetsData: action.payload,
-      };
-
     default:
       return state;
   }

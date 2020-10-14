@@ -1,8 +1,8 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import {useDispatch} from 'react-redux';
-import {onSignOutFirebaseUser} from '../../../redux/actions';
-import {useAuthUser} from '../../../@crema/utility/AppHooks';
+import {onSignOutFirebaseUser, onGetUserInfo} from '../../../redux/actions';
+import {useAuthUserAndInfo} from '../../../@crema/utility/AppHooks';
 import AppContext from '../../../@crema/utility/AppContext';
 import clsx from 'clsx';
 import {makeStyles} from '@material-ui/core';
@@ -15,11 +15,16 @@ import {Fonts} from '../../constants/AppEnums';
 import AppContextPropsType, {
   CremaTheme,
 } from '../../../types/AppContextPropsType';
+import InfoView from '@crema/core/InfoView';
 
 const UserInfo = (props: any) => {
   const {themeMode} = useContext<AppContextPropsType>(AppContext);
   const dispatch = useDispatch();
-  const user = useAuthUser();
+  useEffect(() => {
+    dispatch(onGetUserInfo());
+  }, [dispatch]);
+
+  const userData = useAuthUserAndInfo();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -32,11 +37,11 @@ const UserInfo = (props: any) => {
   };
 
   const getUserAvatar = () => {
-    if (user && user.displayName) {
-      return user.displayName.charAt(0).toUpperCase();
+    if (userData && userData.userInfo?.displayName) {
+      return userData.userInfo?.displayName.charAt(0).toUpperCase();
     }
-    if (user && user.email) {
-      return user.email.charAt(0).toUpperCase();
+    if (userData && userData.authUser && userData.authUser?.email) {
+      return userData.authUser?.email.charAt(0).toUpperCase();
     }
   };
 
@@ -104,46 +109,23 @@ const UserInfo = (props: any) => {
       px={{xs: 4, xl: 7}}
       className={clsx(classes.crUserInfo, 'cr-user-info')}>
       <Box display='flex' alignItems='center'>
-        {user && user.photoURL ? (
-          <Avatar className={classes.profilePic} src={user.photoURL} />
-        ) : (
-          <Avatar className={classes.profilePic}>{getUserAvatar()}</Avatar>
-        )}
+        {/* {user && user.photoURL ? ( */}
+          <Avatar className={classes.profilePic} src={require('assets/images/byouin_logo_small.png')} />
+        {/* ) : ( */}
+          {/* <Avatar className={classes.profilePic}>{getUserAvatar()}</Avatar> */}
+        {/* )} */}
         <Box ml={4} className={clsx(classes.userInfo, 'user-info')}>
           <Box
             display='flex'
             alignItems='center'
             justifyContent='space-between'>
             <Box mb={0} className={clsx(classes.userName)}>
-              {user && (user.displayName ? user.displayName : 'あつき動物病院')}
-            </Box>
-            <Box
-              ml={3}
-              className={classes.pointer}
-              color={themeMode === 'light' ? '#313541' : 'white'}>
-              <Box component='span' onClick={handleClick}>
-                <ExpandMoreIcon />
-              </Box>
-              <Menu
-                id='simple-menu'
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}>
-                <MenuItem>My account</MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    if (user) {
-                      dispatch(onSignOutFirebaseUser());
-                    }
-                  }}>
-                  Logout
-                </MenuItem>
-              </Menu>
+              {userData && userData.userInfo && (userData.userInfo.displayName ? userData.userInfo.displayName : '')}
             </Box>
           </Box>
         </Box>
       </Box>
+      <InfoView />
     </Box>
   );
 };
