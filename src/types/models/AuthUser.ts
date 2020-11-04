@@ -8,6 +8,7 @@ export interface AuthUser {
 
 export interface UserInfo {
   displayName: string;
+  signinDate: string;
 }
 
 export interface UserData {

@@ -6,13 +6,14 @@ import {Box, makeStyles} from '@material-ui/core';
 import TableHeading from './TableHeading';
 import TableItem from './TableItem';
 import {grey} from '@material-ui/core/colors/index';
-import {BookingData} from '../../../../../types/models/Analytics';
+import {BookingConfig, BookingData} from '../../../../../types/models/Analytics';
 
-interface Props {
+interface TransactionTableProps {
   bookingList: BookingData[];
+  bookingConfig: BookingConfig;
 }
 
-const TransactionTable: React.FC<Props> = ({bookingList}) => {
+const TransactionTable: React.FC<TransactionTableProps> = ({bookingList, bookingConfig}) => {
   const useStyles = makeStyles(() => ({
     tableResponsiveMaterial: {
       minHeight: '.01%',
@@ -42,7 +43,7 @@ const TransactionTable: React.FC<Props> = ({bookingList}) => {
         </TableHead>
         <TableBody>
           {bookingList.map((booking) => (
-            <TableItem data={booking} key={booking.orderNumber} />
+            <TableItem data={booking} config={bookingConfig} key={booking.orderNumber} />
           ))}
         </TableBody>
       </Table>

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import QRCode from 'qrcode.react';
 import AddBookingForm from '../Analytics/CreateBooking/AddBookingForm';
 import AfterBooking from '../Analytics/CreateBooking/AfterBooking';
@@ -16,18 +16,31 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { useDispatch, useSelector } from 'react-redux';
-import {onGetBookingData, onGetConfigData} from '../../../redux/actions';
+import {onGetBookingData, onGetConfigData, onGetUserInfo} from '../../../redux/actions';
 import {AppState} from '../../../redux/store';
 import InfoView from '@crema/core/InfoView';
 import { useHistory } from 'react-router-dom';
 import { useAuthUser } from '@crema/utility/AppHooks';
 import StopBooking from './StopBooking';
+import {
+  GET_LATEST_BOOKED_NUMBER
+} from '../../../types/actions/Dashboard.action';
+import { getNowTimeWithCollon, getTodayString, getTodayStringWithSlash } from 'shared/function/common';
+import Scrollbar from '@crema/core/Scrollbar';
 
 const useStyles = makeStyles((theme: CremaTheme) => ({
   avatar: {
     width: 180,
     height: 90,
     marginBottom: 8,
+    marginTop: 8,
+    [theme.breakpoints.down('xs')]: {
+      width: 120,
+      height: 60,
+    },
+  },
+  scrollRoot: {
+    height: 'calc(100vh - 110px)',
   },
   stopBooking: {
     width: '98%',
@@ -35,7 +48,10 @@ const useStyles = makeStyles((theme: CremaTheme) => ({
     marginBottom: 8,
   },
   headerBox: {
-    minWidth: 90,
+    width: 90,
+    [theme.breakpoints.down('xs')]: {
+      width: 30,
+    },
     marginBottom: 8,
   },
   statsbox: {
@@ -93,23 +109,28 @@ const Booking = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const history = useHistory();
-  const user = useAuthUser();
+  // const user = useAuthUser();
+  const [userId, setUserId] = useState('');
   
   useEffect(() => {
-    var uid = '';
+    let uid = ''
     if (history.location.pathname.endsWith("/booking")) {
-      uid = user ? user.uid: '';
+      uid = (user ? user.uid: '');
     } else {
       var pathArr = history.location.pathname.split( '/' );
-      uid = pathArr[pathArr.length-1];
+      uid = (pathArr[pathArr.length-1]);
     }
     dispatch(onGetBookingData(uid));
     dispatch(onGetConfigData(uid));
+    dispatch(onGetUserInfo(uid));
+    setUserId(uid);
   }, [dispatch]);
 
   const {bookings: bookingData, config: bookingConfig, bookedNumber: bookedNum} = useSelector<AppState, AppState['dashboard']>(
     ({dashboard}) => dashboard
   );
+
+  const {user, userInfo} = useSelector<AppState, AppState['auth']>(({auth}) => auth);
 
   const getCallingNumber = () => {
     if (bookingData) {
@@ -163,26 +184,65 @@ const Booking = () => {
   }
 
   const getBookingDisabled = () => {
-    let flg = false;
-    var now = new Date();
-    var month =  ("0"+(now.getMonth()+1)).slice(-2);
-    var day =  ("0"+now.getDate()).slice(-2);
-    var date = now.getFullYear() + "/" + month + "/" + day
-    console.log('bookingFlg:' + bookingConfig?.bookingFlg)
-    console.log('flgDate:' + bookingConfig?.flgDate)
-    if (bookingConfig?.bookingFlg && bookingConfig?.flgDate === date) {
-      flg = true;
-    }
+      let temporaryFlg = false;
+      
+      const date = getTodayStringWithSlash();
+  
+      if(!bookingConfig) return true;
+      if (bookingConfig.bookingFlg && bookingConfig.flgDate === date) {
+        temporaryFlg = true;
+      }
+  
+      // 受付時間判定
+      let ontime = false;
+      const time = getNowTimeWithCollon();
+      
+      if (time >= bookingConfig.open_time1　+ ":00" && time <= bookingConfig.close_time1　+ ":00" ||
+        time >= bookingConfig.open_time2　+ ":00" && time <= bookingConfig.close_time2　+ ":00" ) {
+          ontime = true;
+        }
 
-    console.log('flg:' + flg)
-    return flg;
-  };
+      // 管理者のログイン判定
+      let loggedinToday = (userInfo?.signinDate === getTodayString());
+      if (loggedinToday) {
+        if (temporaryFlg)
+          return true;
+        else
+          return ontime ? false : true;
+      } else {
+        return true;
+      }
+    };
+
+  const ref = React.createRef<HTMLDivElement>()
+  const scrollToTop = React.useCallback(() => {
+    console.log(ref);
+    console.log(ref!.current);
+    ref!.current!.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }, [ ref ])
+
+  const topRef = useRef<HTMLLabelElement>(null);
+  // const ref = useRef<HTMLDivElement>(null);
+  const afterBookingAction = React.useCallback(() => {
+    console.log('afterBookingAction');
+    // scrollToTop();
+    // topRef!.current!.scrollIntoView({ behavior: 'smooth' })
+    topRef && topRef.current && topRef.current.scrollIntoView();
+  }, [])
+
+  
+  const clickNextButton = () => {
+    dispatch({type: GET_LATEST_BOOKED_NUMBER, payload: 0});
+  }
 
   return (
-    <Box display='flex' flexDirection='column' justifyContent='flex-start' alignItems="center"> 
+    <Box display='flex' flexDirection='column' alignItems="center"> 
       <Box width='100%' display="flex" flexDirection="row" justifyContent='space-between' alignItems='baseline'>
         <Box className={classes.headerBox}></Box>
-        <label htmlFor='icon-button-file'>
+        <label htmlFor='icon-button-file' ref={topRef ? topRef : ''}>
           <Avatar variant="square" className={classes.avatar} src={require('assets/images/byouin_logo.jpg')} />
         </label>
         <Box className={classes.headerBox}>
@@ -191,15 +251,6 @@ const Booking = () => {
             ) 
           }
         </Box>
-        
-        {/* <Box
-          mb={3}
-          component='h2'
-          fontFamily={Fonts.MEDIUM}
-          className='font-bold'
-          id='alert-dialog-title'>
-          あつき動物病院
-        </Box> */}
       </Box>
       <Box px={5} width='100%' borderBottom={`4px solid ${blue[500]}`}></Box>
       { (getBookingDisabled()) && (
@@ -207,8 +258,10 @@ const Booking = () => {
           <StopBooking/>
         </Box>
       )}
+      <Scrollbar className={classes.scrollRoot}>
+      <Box display='flex' flexDirection='column' alignItems="center"> 
       <Box width='100%' display="flex" flexDirection="row" justifyContent='space-around' className={classes.statsbox} >
-      <Box width='48%'>
+        <Box width='48%'>
           <BookingStats
             bgColor={red[500]}
             num={getCallingNumber()}
@@ -233,7 +286,7 @@ const Booking = () => {
           color={red[500]}
           fontSize={18}
           fontFamily={Fonts.MEDIUM}>
-        診察の内容によってお呼び出しの順番が前後する事があります。あらかじめご了承ください。
+        診察の内容によってお呼び出しの順番が前後する場合がございます。あらかじめご了承ください。
         </Box>
       <Box width="98%" mb={4}>
         <Card>
@@ -257,8 +310,8 @@ const Booking = () => {
           </Box>
         </Card>
       </Box>
-      <Box width="98%" mt={2}>
-        { (getBookingDisabled()==false && bookedNum == 0) && (
+      <Box width="98%" my={2}>
+        { ((getBookingDisabled()==false || user) && bookedNum == 0) && (
         <Card >
           <Accordion defaultExpanded>
             <AccordionSummary 
@@ -272,17 +325,20 @@ const Booking = () => {
                   </Box>
             </AccordionSummary>
             <AccordionDetails className={classes.details}>
-              <AddBookingForm />
+              <AddBookingForm userId={userId} afterBookingAction={afterBookingAction}/>
             </AccordionDetails>
           </Accordion>
         </Card>
         )}
         { (bookedNum != 0) && (
-          <AfterBooking bookedNumber={bookedNum}></AfterBooking>
+          <AfterBooking bookedNumber={bookedNum} isVisibleNextButton={(user) ? true : false} clickNextButton={() => {clickNextButton()}}></AfterBooking>
         )}
       </Box>
+      </Box>
+      </Scrollbar>
       <InfoView />
     </Box>
+    
   );
 };
 

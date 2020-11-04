@@ -54,12 +54,12 @@ const BookingStats: React.FC<BookingStatsProps> = ({
             width="100%"
             textAlign="left"
             component='p'
-            fontSize={{xs: 18, sm: 36, xl: 42}}
+            fontSize={{xs: 16, sm: 36, xl: 42}}
             color='grey.500'
             mb={1}>
             {heading}
           </Box>
-          <Box display='flex' alignItems='center' justifyContent="center" flexDirection="row">
+          <Box display='flex' alignItems='center' justifyContent="center" flexDirection="row" flexWrap='wrap'>
             <Box
               component='h1'
               display='inline-block'
@@ -79,7 +79,7 @@ const BookingStats: React.FC<BookingStatsProps> = ({
               <Box
               component='span'
               ml={3}
-              fontSize={{xs: 24, xl: 48}}
+              fontSize={{xs: 20, xl: 48}}
               fontFamily={Fonts.MEDIUM}>
                 {option}
               </Box>

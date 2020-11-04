@@ -14,7 +14,8 @@ const Signin: React.FC<SigninProps> = (props) => {
     imgRoot: {
       cursor: 'pointer',
       display: 'inline-block',
-      width: 140,
+      width: '50%',
+      maxWidth: 240,
     },
     cardRoot: {
       maxWidth: '36rem',
@@ -47,10 +48,10 @@ const Signin: React.FC<SigninProps> = (props) => {
 
   return (
     <Box flex={1} display='flex' flexDirection='column' justifyContent='center'>
-      <Box mb={{xs: 6, md: 8, xl: 18}} textAlign='center'>
+      <Box my={{xs: 6, md: 8, xl: 18}} textAlign='center'>
         <img
           className={classes.imgRoot}
-          src={require('assets/images/logo-white-with-name.png')}
+          src={require('assets/images/logo-with-name.png')}
           alt='logo'
         />
       </Box>
@@ -58,7 +59,8 @@ const Signin: React.FC<SigninProps> = (props) => {
         display='flex'
         flexDirection='column'
         justifyContent='center'
-        alignItems='center'>
+        alignItems='center'
+        mx={2}>
         <Card className={classes.cardRoot}>
           <Box px={{xs: 6, sm: 10, xl: 15}}>
             <Box

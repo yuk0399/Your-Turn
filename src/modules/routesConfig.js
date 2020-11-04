@@ -13,21 +13,21 @@ const routesConfig = [
         icon: 'dashboard',
         children: [
           {
-            id: 'analytics',
+            id: 'booking-list',
             title: 'booking list',
             messageId: 'sidebar.app.booking.list',
             type: 'item',
             url: '/booking-list',
           },
           {
-            id: 'analytics',
+            id: 'booking',
             title: 'booking status',
             messageId: 'sidebar.app.booking.status',
             type: 'item',
             url: '/booking',
           },
           {
-            id: 'analytics',
+            id: 'booking-config',
             title: 'booking config',
             messageId: 'sidebar.app.booking.config',
             type: 'item',
@@ -36,14 +36,14 @@ const routesConfig = [
         ],
       },
       {
-        id: 'dashboards',
+        id: 'account-menu',
         title: 'Dashboards',
         messageId: 'sidebar.app.account',
         type: 'collapse',
         icon: 'dashboard',
         children: [
           {
-            id: 'analytics',
+            id: 'personal',
             title: 'config',
             messageId: 'sidebar.app.account.config',
             type: 'item',

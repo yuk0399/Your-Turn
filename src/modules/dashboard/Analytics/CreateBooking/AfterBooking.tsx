@@ -1,7 +1,7 @@
 import React from 'react';
 import {useHistory} from 'react-router-dom';
 import Box from '@material-ui/core/Box';
-import {makeStyles} from '@material-ui/core';
+import {Button, makeStyles} from '@material-ui/core';
 import {Fonts} from '../../../../shared/constants/AppEnums';
 import {CremaTheme} from '../../../../types/AppContextPropsType';
 import BookingStats from 'modules/dashboard/Booking/BookingStats';
@@ -9,10 +9,14 @@ import {orange} from '@material-ui/core/colors';
 
 interface AfterBookingProps {
     bookedNumber: number;
+    isVisibleNextButton: boolean;
+    clickNextButton: () => void;
 }
 
 const AfterBooking: React.FC<AfterBookingProps> = ({
-    bookedNumber
+    bookedNumber,
+    isVisibleNextButton,
+    clickNextButton
 }) => {
   const useStyles = makeStyles((theme: CremaTheme) => {
     return {
@@ -27,6 +31,20 @@ const AfterBooking: React.FC<AfterBookingProps> = ({
       },
       image: {
         width: '100%',
+      },
+      btnRoot: {
+        borderRadius: theme.overrides.MuiCard.root.borderRadius,
+        width: '10rem',
+        // margin: '1rem',
+        fontFamily: Fonts.LIGHT,
+        fontSize: 16,
+        textTransform: 'capitalize',
+        [theme.breakpoints.up('sm')]: {
+          fontSize: 18,
+        },
+        [theme.breakpoints.up('xl')]: {
+          fontSize: 20,
+        },
       },
     };
   });
@@ -60,9 +78,26 @@ const AfterBooking: React.FC<AfterBookingProps> = ({
             mb={{xs: 3, xl: 10}}
             fontSize={{xs: 24, md: 28}}
             fontFamily={Fonts.LIGHT}>
-            診察予約が完了しました。
+            予約受付が完了しました。ご来院をお待ちしています。
           </Box>
         </Box>
+        { (isVisibleNextButton) && (
+          <Box
+          mb={6}
+          display='flex'
+          flexDirection={{xs: 'column', sm: 'row'}}
+          alignItems={{sm: 'center'}}
+          justifyContent={{sm: 'space-between'}}>
+          <Button
+            variant='contained'
+            color='primary'
+            className={classes.btnRoot}
+            onClick={() => clickNextButton()}
+            >
+            続けて追加する
+          </Button>
+        </Box>
+        )}
       </Box>
     </>
   );

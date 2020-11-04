@@ -68,7 +68,7 @@ const UserSignin: React.FC<UserSigninProps> = (props) => {
     btnRoot: {
       // @ts-ignore
       borderRadius: theme.overrides.MuiCard.root.borderRadius,
-      width: '10rem',
+      width: '50%',
       fontFamily: Fonts.LIGHT,
       fontSize: 16,
       textTransform: 'capitalize',
@@ -128,8 +128,8 @@ const UserSignin: React.FC<UserSigninProps> = (props) => {
         <Formik
           validateOnChange={true}
           initialValues={{
-            email: 'aaaaaa@aaaaaa.aaaaaa',
-            password: 'aaaaaa',
+            email: '',
+            password: '',
           }}
           validationSchema={validationSchema}
           onSubmit={(data, {setSubmitting}) => {
@@ -159,37 +159,14 @@ const UserSignin: React.FC<UserSigninProps> = (props) => {
                   className={classes.myTextFieldRoot}
                 />
               </Box>
-
               <Box
-                mb={{xs: 4, xl: 6}}
-                display='flex'
-                flexDirection={{xs: 'column', sm: 'row'}}
-                alignItems={{sm: 'center'}}
-                justifyContent={{sm: 'space-between'}}
-                fontSize={18}>
-                <Box display='flex' alignItems='center'>
-                  <Checkbox className={classes.checkboxRoot} />
-                  <Box className={classes.textGrey} component='span'>
-                    <IntlMessages id='common.rememberMe' />
-                  </Box>
-                </Box>
-                <Box
-                  color='primary.main'
-                  component='span'
-                  ml={{sm: 4}}
-                  className={classes.pointer}
-                  onClick={onGoToForgetPassword}>
-                  <IntlMessages id='common.forgetPassword' />
-                </Box>
-              </Box>
-
-              <Box
-                mb={6}
-                display='flex'
-                flexDirection={{xs: 'column', sm: 'row'}}
-                alignItems={{sm: 'center'}}
-                justifyContent={{sm: 'space-between'}}>
-                <Button
+              mb={{xs: 4, xl: 6}}
+              display='flex'
+              flexDirection={{xs: 'column', sm: 'row'}}
+              alignItems={{sm: 'center'}}
+              justifyContent={{sm: 'center'}}
+              fontSize={{xs: 14, sm: 18}}>
+              <Button
                   variant='contained'
                   color='secondary'
                   type='submit'
@@ -197,12 +174,45 @@ const UserSignin: React.FC<UserSigninProps> = (props) => {
                   className={classes.btnRoot}>
                   <IntlMessages id='common.login' />
                 </Button>
+                <Box
+                  color='primary.main'
+                  component='span'
+                  ml={{sm: 4}}
+                  my={4}
+                  className={classes.pointer}
+                  onClick={onGoToForgetPassword}>
+                  <IntlMessages id='common.forgetPassword' />
+                </Box>
+              </Box>
+              <Box
+                mb={{xs: 4, xl: 6}}
+                display='flex'
+                flexDirection={{xs: 'column', sm: 'row'}}
+                alignItems={{sm: 'center'}}
+                justifyContent={{sm: 'flex-end'}}
+                fontSize={18}>
+                {/* <Box display='flex' alignItems='center'>
+                  <Checkbox className={classes.checkboxRoot} />
+                  <Box className={classes.textGrey} component='span'>
+                    <IntlMessages id='common.rememberMe' />
+                  </Box>
+                </Box> */}
+                
+              </Box>
+
+              <Box
+                mb={6}
+                display='flex'
+                flexDirection={{xs: 'column', sm: 'row'}}
+                alignItems={{sm: 'center'}}
+                justifyContent={{sm: 'flex-end'}}>
+                
 
                 <Box
                   ml={{xs: 0, sm: 4}}
                   mt={{xs: 3, sm: 0}}
                   color='text.secondary'
-                  fontSize={18}>
+                  fontSize={{xs: 14, sm: 18}}>
                   <Box className={classes.textGrey} component='span' mr={2}>
                     <IntlMessages id='common.dontHaveAccount' />
                   </Box>

@@ -13,6 +13,7 @@ import { BookingData } from 'types/models/Analytics';
 import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { AppState } from 'redux/store';
 import { useAuthUser } from '@crema/utility/AppHooks';
+import { getNowTimeWithCollon, getTodayStringWithSlash } from 'shared/function/common';
 
 const MyTextField = (props: any) => {
   const [field, meta] = useField(props);
@@ -27,46 +28,35 @@ const MyTextField = (props: any) => {
   );
 };
 
-const validationSchema = yup.object({
-    name: yup.string().required('表示名を入力してください。'),
-    email: yup.string().required('メールアドレスを入力してください。'),
-    // pet_name1: yup.string().required('ペット名を入力してください。'),
-    // pet_name2: yup.string().required('ペット名を入力してください。'),
-    // content2: yup.string().required('診察内容を選択してください。'),
-    // pet_name3: yup.string().required('ペット名を入力してください。'),
-    // content3: yup.string().required('診察内容を選択してください。'),
+const validationSchema2 = yup.object({
+    name: yup.string().required('飼い主様名を入力してください。'),
+    pet_name1: yup.string().required('ペット名を入力してください。'),
+    // content1: yup.string().required('診察内容を選択してください。'),
+    // pet_name2: yup.array().of(
+    //   yup.lazy((value: any) => {
+    //       if (value && value.number >= 2) {
+    //         return yup.object().shape({
+    //           value: yup.string().required('ペット名を入力してください。'),
+    //         });
+    //       } else {
+    //         return yup.object().shape({
+    //           value: yup.string().notRequired(),
+    //         });
+    //       }
+    //   })),
+    // content2: yup.array().of(
+    //   yup.lazy((value: any) => {
+    //       if (value && value.number >= 2) {
+    //         return yup.object().shape({
+    //           value: yup.string().required('診察内容を選択してください。'),
+    //         });
+    //       } else {
+    //         return yup.object().shape({
+    //           value: yup.string().notRequired(),
+    //         });
+    //       }
+    //   })),
 });
-
-// const validationSchema = yup.lazy<FormValues>((values) => {
-//   if (values.number === 3) {
-//     return 
-//     });
-//   } else if (values.number === 2) {
-//     return yup.object().shape({
-//       name: yup.string().required('表示名を入力してください。'),
-//       email: yup.string().required('メールアドレスを入力してください。'),
-//       number: yup.string().required('頭数を入力してください。'),
-//       pet_name1: yup.string().required('ペット名を入力してください。'),
-//       content1: yup.string().required('診察内容を選択してください。'),
-//       pet_name2: yup.string().required('ペット名を入力してください。'),
-//       content2: yup.string().required('診察内容を選択してください。'),
-//       pet_name3: yup.string().required('ペット名を入力してください。'),
-//       content3: yup.string().required('診察内容を選択してください。'),
-//     });
-//   } else {
-//     return yup.object().shape({
-//       name: yup.string().required('表示名を入力してください。'),
-//       email: yup.string().required('メールアドレスを入力してください。'),
-//       number: yup.string().required('頭数を入力してください。'),
-//       pet_name1: yup.string().required('ペット名を入力してください。'),
-//       content1: yup.string().required('診察内容を選択してください。'),
-//       pet_name2: yup.string().required('ペット名を入力してください。'),
-//       content2: yup.string().required('診察内容を選択してください。'),
-//       pet_name3: yup.string().required('ペット名を入力してください。'),
-//       content3: yup.string().required('診察内容を選択してください。'),
-//     });
-//   }
-// });
 
 // interface FormValues {
 //   name: string;
@@ -79,6 +69,10 @@ const validationSchema = yup.object({
 //   content2: string;
 //   pet_name3: string;
 //   content3: string;
+//   pet_name4: string;
+//   content4: string;
+//   pet_name5: string;
+//   content5: string;
 // }
 
 const initialValues = {
@@ -92,19 +86,27 @@ const initialValues = {
   content2: '',
   pet_name3: '',
   content3: '',
+  pet_name4: '',
+  content4: '',
+  pet_name5: '',
+  content5: '',
 }
 
 interface AddBookingFormProps {
+  userId: string;
+  afterBookingAction: () => void;
 }
 
-const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
+const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAction }) => {
   const dispatch = useDispatch();
-  const inputLabel = React.useRef(null);
   const user = useAuthUser();
   const [petCount, setPetCount] = React.useState(1);
+  const [waitingCount, setWaitingCount] = React.useState(1);
   const [content1, setContent1] = React.useState('');
   const [content2, setContent2] = React.useState('');
   const [content3, setContent3] = React.useState('');
+  const [content4, setContent4] = React.useState('');
+  const [content5, setContent5] = React.useState('');
   
   const useStyles = makeStyles((theme: CremaTheme) => ({
     formRoot: {
@@ -143,10 +145,13 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
     formControl: {
       width: '100%',
     },
+    formControl2: {
+      width: '40%',
+    },
     btnRoot: {
       borderRadius: theme.overrides.MuiCard.root.borderRadius,
       width: '10rem',
-      margin: '1rem',
+      // margin: '1rem',
       fontFamily: Fonts.LIGHT,
       fontSize: 16,
       textTransform: 'capitalize',
@@ -204,6 +209,56 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
   function handleChange3(event: React.ChangeEvent<{value: unknown}>) {
     setContent3(event.target.value as string);
   }
+  function handleChange4(event: React.ChangeEvent<{value: unknown}>) {
+    setContent4(event.target.value as string);
+  }
+  function handleChange5(event: React.ChangeEvent<{value: unknown}>) {
+    setContent5(event.target.value as string);
+  }
+
+  const inputLabel = React.useRef<HTMLLabelElement>(null);
+  const inputLabel1 = React.useRef<HTMLLabelElement>(null);
+  const inputLabel2 = React.useRef<HTMLLabelElement>(null);
+  const [labelWidth, setLabelWidth] = React.useState(0);
+  const [labelWidth1, setLabelWidth1] = React.useState(0);
+  const [labelWidth2, setLabelWidth2] = React.useState(0);
+  React.useEffect(() => {
+    if (inputLabel && inputLabel?.current && inputLabel?.current?.offsetWidth) {
+      setLabelWidth(inputLabel.current.offsetWidth);
+    }
+    if (inputLabel1 && inputLabel1?.current && inputLabel1?.current?.offsetWidth) {
+      setLabelWidth1(inputLabel1.current.offsetWidth);
+    }
+    if (inputLabel2 && inputLabel2?.current && inputLabel2?.current?.offsetWidth) {
+      setLabelWidth2(inputLabel2.current.offsetWidth);
+    }
+  }, []);
+
+  const validationSchema = yup.object({
+    name: yup.string().required('飼い主様名を入力してください。'),
+    pet_name1: yup.string().required('ペット名を入力してください。'),
+    // pet_name2: yup.string().notRequired(),
+    // content2: yup.string().notRequired(),
+    // pet_name2: yup.string().required('ペット名を入力してください。').transform(value => {
+    //   // If any child property has a value, skip the transform
+    //   if (petCount > 1) {
+    //     return value;
+    //   }
+    //   // Transform the value to undefined
+    //   return undefined;
+    // }),
+        // yup.lazy(value => {
+        //     // if (petCount > 1) {
+        //       return yup.object().shape({
+        //         value: yup.string().required('ペット名を入力してください。'),
+        //       });
+        //     // } else {
+        //     //   return yup.object().shape({
+        //     //     pet_name2: yup.string().notRequired(),
+        //     //   });
+        //     // }
+        // }),
+  });
 
   return (
     
@@ -216,7 +271,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
           fontFamily={Fonts.MEDIUM}
           className='font-bold'
           >
-          診療予約の追加
+          診療予約受付
         </Box>
       <Box
         px={{xs: 6, sm: 10, xl: 15}}
@@ -231,13 +286,11 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
           onSubmit={(data, {setErrors, setSubmitting, resetForm}) => {
             console.log('onSubmit')
               setSubmitting(true);
-              var now = new Date();
-              var month =  ("0"+(now.getMonth()+1)).slice(-2);
-              var day =  ("0"+now.getDate()).slice(-2);
-              var hour =  ("0"+now.getHours()).slice(-2);
-              var min =  ("0"+now.getMinutes()).slice(-2);
-              var sec =  ("0"+now.getSeconds()).slice(-2);
               
+              // setErrors({ pet_name2: 'This is a dummy procedure error' });
+              // setErrors({ content2: 'This is a dummy procedure error' });
+              // setSubmitting(false);
+              // return;
               let booking: BookingData = {
                 id: '',
                 orderNumber: 0,
@@ -246,24 +299,33 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                 email: data.email,
                 medical_number: (data.medical_number == '') ? '初診': data.medical_number,
                 number: petCount,
+                waiting_count: waitingCount,
                 content1: content1,
                 pet_name1: data.pet_name1,
                 content2: content2,
                 pet_name2: data.pet_name2,
                 content3: content3,
                 pet_name3: data.pet_name3,
-                date: now.getFullYear() + "/" + month + "/" + day,
-                time: hour + ":" + min + ":" + sec,
-                directBooked : (user == null ? false : true)
+                content4: content4,
+                pet_name4: data.pet_name4,
+                content5: content5,
+                pet_name5: data.pet_name5,
+                date: getTodayStringWithSlash(),
+                time: getNowTimeWithCollon(),
+                directBooked: (user == null ? false : true),
+                mailGuided: false
               };
               
-              dispatch(onCreateBookingData(booking));
+              dispatch(onCreateBookingData(booking, true, userId));
               setSubmitting(false);
               resetForm();
               setPetCount(1);
               setContent1('');
               setContent2('');
               setContent3('');
+              setContent4('');
+              setContent5('');
+              afterBookingAction();
           }}>
           {({isSubmitting}) => (
             <Form className={classes.formRoot} noValidate autoComplete='off'>
@@ -275,29 +337,65 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                   className={classes.myTextFieldRoot}
                 />
               </Box>
-
               <Box mb={{xs: 5, xl: 8}}>
                 <MyTextField
-                  label='メールアドレス'
-                  name='email'
-                  variant='outlined'
-                  className={classes.myTextFieldRoot}
-                />
-              </Box>
-              <Box mb={{xs: 5, xl: 8}}>
-                <MyTextField
-                  label='診察番号(初診の場合は空欄)'
+                  label='診察券番号(初診の場合は空欄)'
                   name='medical_number'
                   variant='outlined'
                   className={classes.myTextFieldRoot}
                 />
               </Box>
+              <Box mb={{xs: 5, xl: 8}}>
+                <MyTextField
+                  label='メールアドレス(任意入力)'
+                  name='email'
+                  variant='outlined'
+                  className={classes.myTextFieldRoot}
+                />
+              </Box>
+              <Box mb={{xs: 5, xl: 8}} display='flex' flexDirection='row' alignItems='center'>
+                <FormControl variant='outlined' className={classes.formControl2}>
+                  <InputLabel ref={inputLabel2} htmlFor='waiting-count'>
+                  お知らせ人数
+                  </InputLabel>
+                  <Select
+                    labelWidth={labelWidth2}
+                    value={waitingCount}
+                    inputProps={{
+                      name: 'waiting_count',
+                      id: 'waiting-count',
+                    }}
+                    onChange={ e => setWaitingCount(e.target.value ? Number(e.target.value) : 1) }
+                    >
+                    <MenuItem value='1'>1</MenuItem>
+                    <MenuItem value='2'>2</MenuItem>
+                    <MenuItem value='3'>3</MenuItem>
+                    <MenuItem value='4'>4</MenuItem>
+                    <MenuItem value='5'>5</MenuItem>
+                  </Select>
+                </FormControl>
+                <Box>
+                　人前に通知する
+                </Box>
+              </Box>
+              <Box 
+                  ml={2}
+                  mb={6}
+                  // color={red[500]}
+                  // fontSize={16}
+                  fontFamily={Fonts.MEDIUM}>
+                お呼び出し順番が近づいてきた際、緊急のお知らせがあった場合はメールでお知らせします。<br/>
+                メールアドレスを入力しないお客様は以下の注意点をご確認ください。<br/>
+                ・お知らせメールが届きません。<br/>
+                ・登録後に表示される予約受付番号をスクリーンショットするか、メモをとるようお願いいたします。
+              </Box>
               <Box mb={{xs: 5, xl: 8}} >
                 <FormControl variant='outlined' className={classes.formControl}>
-                  <InputLabel ref={inputLabel} htmlFor='pet-count'>
+                  <InputLabel ref={inputLabel1} htmlFor='pet-count'>
                   頭数
                   </InputLabel>
                   <Select
+                    labelWidth={labelWidth1}
                     value={petCount}
                     inputProps={{
                       name: 'number',
@@ -308,6 +406,8 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                     <MenuItem value='1'>1</MenuItem>
                     <MenuItem value='2'>2</MenuItem>
                     <MenuItem value='3'>3</MenuItem>
+                    <MenuItem value='4'>4</MenuItem>
+                    <MenuItem value='5'>5</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
@@ -327,6 +427,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                       診察内容
                       </InputLabel>
                       <Select
+                        labelWidth={labelWidth}
                         value={content1}
                         onChange={handleChange1}
                         inputProps={{
@@ -337,12 +438,11 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                         <MenuItem value='フィラリア予防'>フィラリア予防</MenuItem>
                         <MenuItem value='具合が悪い'>具合が悪い</MenuItem>
                         <MenuItem value='再診'>再診</MenuItem>
-                        <MenuItem value='その他'>その他</MenuItem>
                       </Select>
                     </FormControl>
                   </Box>
                 </Box>
-                <Box className={classes.petBox} visibility={ (petCount > 1) ? 'visible' : 'collapse'}>
+                <Box className={classes.petBox} visibility={ (petCount > 1) ? 'visible' : 'collapse'} height={ (petCount > 1) ? 'auto' : 5}>
                   <Box className={classes.petName}>
                     <MyTextField
                       label='ペット名'
@@ -357,8 +457,9 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                       診察内容
                       </InputLabel>
                       <Select
-                      value={content2}
-                      onChange={handleChange2}
+                        labelWidth={labelWidth}
+                        value={content2}
+                        onChange={handleChange2}
                         inputProps={{
                           name: 'content2',
                           id: 'content-selection2',
@@ -367,12 +468,11 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                         <MenuItem value='フィラリア予防'>フィラリア予防</MenuItem>
                         <MenuItem value='具合が悪い'>具合が悪い</MenuItem>
                         <MenuItem value='再診'>再診</MenuItem>
-                        <MenuItem value='その他'>その他</MenuItem>
                       </Select>
                     </FormControl>
                   </Box>
                 </Box>
-                <Box className={classes.petBox} visibility={ (petCount > 2) ? 'visible' : 'collapse'}>
+                <Box className={classes.petBox} visibility={ (petCount > 2) ? 'visible' : 'collapse'} height={ (petCount > 2) ? 'auto' : 5}>
                   <Box className={classes.petName}>
                     <MyTextField
                       label='ペット名'
@@ -387,6 +487,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                       診察内容
                       </InputLabel>
                       <Select
+                        labelWidth={labelWidth}
                         value={content3}
                         onChange={handleChange3}
                         inputProps={{
@@ -397,7 +498,66 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ }) => {
                         <MenuItem value='フィラリア予防'>フィラリア予防</MenuItem>
                         <MenuItem value='具合が悪い'>具合が悪い</MenuItem>
                         <MenuItem value='再診'>再診</MenuItem>
-                        <MenuItem value='その他'>その他</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Box>
+                <Box className={classes.petBox} visibility={ (petCount > 3) ? 'visible' : 'collapse'} height={ (petCount > 3) ? 'auto' : 5}>
+                  <Box className={classes.petName}>
+                    <MyTextField
+                      label='ペット名'
+                      name='pet_name4'
+                      variant='outlined'
+                      className={classes.myTextFieldRoot}
+                    />
+                  </Box>
+                  <Box className={classes.petContent}>
+                    <FormControl variant='outlined' className={classes.formControl}>
+                      <InputLabel ref={inputLabel} htmlFor='content-selection4'>
+                      診察内容
+                      </InputLabel>
+                      <Select
+                        labelWidth={labelWidth}
+                        value={content4}
+                        onChange={handleChange4}
+                        inputProps={{
+                          name: 'content4',
+                          id: 'content-selection4',
+                        }}>
+                        <MenuItem value='ワクチン'>ワクチン</MenuItem>
+                        <MenuItem value='フィラリア予防'>フィラリア予防</MenuItem>
+                        <MenuItem value='具合が悪い'>具合が悪い</MenuItem>
+                        <MenuItem value='再診'>再診</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Box>
+                <Box className={classes.petBox} visibility={ (petCount > 4) ? 'visible' : 'collapse'} height={ (petCount > 4) ? 'auto' : 5}>
+                  <Box className={classes.petName}>
+                    <MyTextField
+                      label='ペット名'
+                      name='pet_name5'
+                      variant='outlined'
+                      className={classes.myTextFieldRoot}
+                    />
+                  </Box>
+                  <Box className={classes.petContent}>
+                    <FormControl variant='outlined' className={classes.formControl}>
+                      <InputLabel ref={inputLabel} htmlFor='content-selection5'>
+                      診察内容
+                      </InputLabel>
+                      <Select
+                        labelWidth={labelWidth}
+                        value={content5}
+                        onChange={handleChange5}
+                        inputProps={{
+                          name: 'content5',
+                          id: 'content-selection5',
+                        }}>
+                        <MenuItem value='ワクチン'>ワクチン</MenuItem>
+                        <MenuItem value='フィラリア予防'>フィラリア予防</MenuItem>
+                        <MenuItem value='具合が悪い'>具合が悪い</MenuItem>
+                        <MenuItem value='再診'>再診</MenuItem>
                       </Select>
                     </FormControl>
                   </Box>

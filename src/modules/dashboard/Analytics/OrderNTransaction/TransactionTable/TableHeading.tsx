@@ -17,8 +17,8 @@ const TableHeading: React.FC<Props> = (props) => {
     },
     tableCellRoot: {
       borderBottom: '1px solid #e0e0e0',
-      fontSize: 16,
-      padding: 8,
+      fontSize: 14,
+      padding: 6,
       fontFamily: Fonts.BOLD,
       '&:first-child': {
         [theme.breakpoints.up('xl')]: {
@@ -30,9 +30,9 @@ const TableHeading: React.FC<Props> = (props) => {
           paddingRight: 4,
         },
       },
-      [theme.breakpoints.up('xl')]: {
-        fontSize: 18,
-        padding: 16,
+      [theme.breakpoints.up('lg')]: {
+        fontSize: 16,
+        padding: 8,
       },
     },
   }));
@@ -40,7 +40,9 @@ const TableHeading: React.FC<Props> = (props) => {
   const classes = useStyles(props);
   return (
     <TableRow className={classes.tableRowRoot}>
-      <TableCell className={classes.tableCellRoot}>受付番号</TableCell>
+      <TableCell align='left' className={classes.tableCellRoot}>
+        受付順
+      </TableCell>
       <TableCell align='left' className={classes.tableCellRoot}>
         ステータス
       </TableCell>
@@ -51,7 +53,7 @@ const TableHeading: React.FC<Props> = (props) => {
         ペット
       </TableCell>
       <TableCell align='left' className={classes.tableCellRoot}>
-        受付時刻
+        時刻
       </TableCell>
       <TableCell align='left' className={classes.tableCellRoot}>
         操作

@@ -1,3 +1,4 @@
+import { getTodayString } from 'shared/function/common';
 import {auth} from '../../@crema/services/auth/firebase/firebase';
 import {Dispatch} from 'redux';
 import {AppActions} from '../../types';
@@ -13,25 +14,34 @@ import {
 import firebase, { FirebaseError } from 'firebase';
 
 
-export const onGetUserInfo = () => {
-  console.log("onGetUserInfo")
+export const onGetUserInfo = (uid: string = '') => {
+  
   return (dispatch: Dispatch<AppActions>) => {
     dispatch(fetchStart());
-    var user = auth.currentUser;
+    let userId = uid;
+    if (uid === '') {
+      var user = firebase.auth().currentUser;
+      if (user)
+        userId = user.uid;
+    }
 
     try {
-      if (user) {
-        var ref = firebase.database().ref('/users/' + user?.uid);
+      if (userId.length > 0) {
+        var ref = firebase.database().ref('/users/' + userId);
         ref.on('value', function(data) {
      
           if (data.exists()) {
             const userInfo: UserInfo = {
-              displayName: ''
+              displayName: '',
+              signinDate: ''
             }   
             data.forEach(snapshot => {
               switch (snapshot.key) {
                 case 'displayName':
                   userInfo.displayName = snapshot.val();
+                  break;
+                case 'signinDate':
+                  userInfo.signinDate = snapshot.val();
                   break;
                 default:
                   console.log('snapshot.key default');
@@ -77,6 +87,7 @@ export const onUpdateNameAndPassword = (name: string, newPassword: string) => {
             }
             const userInfo: UserInfo = {
               displayName: name || '',
+              signinDate: getTodayString()
             }
             dispatch({type: UPDATE_USER_INFO, payload: userInfo});
             if (newPassword === '') {
@@ -124,9 +135,11 @@ export const onSignUpFirebaseUser = ({
           var ref = firebase.database().ref('/users/' + data.user!.uid);
           ref.set({
             displayName: name,
+            signinDate: getTodayString()
           }).then((data) => {
             const userInfo: UserInfo = {
               displayName: authUser.displayName || '',
+              signinDate: getTodayString()
             }
             
             dispatch({type: UPDATE_USER_INFO, payload: userInfo});
@@ -204,24 +217,40 @@ export const onSignInFirebaseUser = ({
   return (dispatch: Dispatch<AppActions>) => {
     dispatch(fetchStart());
     try {
-      auth
-        .signInWithEmailAndPassword(email, password)
-        .then((data) => {
-          dispatch(fetchSuccess());
-          const user: AuthUser = {
-            uid: data.user!.uid,
-            displayName: data.user!.displayName || '',
-            email: data.user!.email || '',
-            photoURL: data.user!.photoURL || '',
-            token: data.user!.refreshToken,
-          };
-          
-          dispatch({type: UPDATE_FIREBASE_USER, payload: user});
-          onGetUserInfo();
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE)
+      .then(function() {
+        auth.signInWithEmailAndPassword(email, password)
+          .then((data) => {
+            dispatch(fetchSuccess());
+            const user: AuthUser = {
+              uid: data.user!.uid,
+              displayName: data.user!.displayName || '',
+              email: data.user!.email || '',
+              photoURL: data.user!.photoURL || '',
+              token: data.user!.refreshToken,
+            };
+            
+            dispatch({type: UPDATE_FIREBASE_USER, payload: user});
+            
+            var ref = firebase.database().ref('/users/' + data.user!.uid);
+            ref.update({
+              signinDate: getTodayString()
+            }).then((data) => {
+              onGetUserInfo();
+              // const userInfo: UserInfo = {
+              //   displayName: user.displayName || '',
+              //   signinDate: getTodayString()
+              // }
+              // dispatch({type: UPDATE_USER_INFO, payload: userInfo});
+            })
+          })
+          .catch((error) => {
+            dispatch(fetchError(error.message));
+          });
         })
-        .catch((error) => {
-          dispatch(fetchError(error.message));
-        });
+        .catch(function(error) {
+          dispatch(fetchError(error.message));    
+        })
     } catch (error) {
       dispatch(fetchError(error.message));
     }

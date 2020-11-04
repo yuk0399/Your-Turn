@@ -24,6 +24,7 @@ import BookingStats from '../Booking/BookingStats';
 import {blue, red} from '@material-ui/core/colors';
 import {onGetBookingData, onGetConfigData, onUpdateBookingConfig, onUpdateBookingFlg} from '../../../redux/actions';
 import {AppState} from '../../../redux/store';
+import { getTodayStringWithSlash } from 'shared/function/common';
 
 const MyTextField = (props: any) => {
   const [field, meta] = useField(props);
@@ -200,10 +201,7 @@ const BookingConfigForm: React.FC = () => {
 
   const getBookingDisabled = () => {
     let flg = false;
-    var now = new Date();
-    var month =  ("0"+(now.getMonth()+1)).slice(-2);
-    var day =  ("0"+now.getDate()).slice(-2);
-    var date = now.getFullYear() + "/" + month + "/" + day
+    var date = getTodayStringWithSlash();
     console.log('bookingFlg:' + bookingConfig?.bookingFlg)
     console.log('flgDate:' + bookingConfig?.flgDate)
     if (bookingConfig?.bookingFlg && bookingConfig?.flgDate === date) {
@@ -321,7 +319,9 @@ const BookingConfigForm: React.FC = () => {
             open_time2: bookingConfig?.open_time2,
             close_time2: bookingConfig?.close_time2,
             title: bookingConfig?.title,
-            notes: bookingConfig?.notes
+            notes: bookingConfig?.notes,
+            phone_number: bookingConfig?.phone_number,
+            mail_sign: bookingConfig?.mail_sign
           }}
           validationSchema={validationSchema}
           onSubmit={(data, {setErrors, setSubmitting}) => {
@@ -335,7 +335,9 @@ const BookingConfigForm: React.FC = () => {
                 title: data.title ? data.title : '',
                 notes: data.notes ? data.notes : '',
                 bookingFlg: false,
-                flgDate: ''
+                flgDate: '',
+                phone_number: data.phone_number ? data.phone_number : '',
+                mail_sign: data.mail_sign ? data.mail_sign : ''
               }
               dispatch(onUpdateBookingConfig(config));
               setSubmitting(false);
@@ -441,6 +443,30 @@ const BookingConfigForm: React.FC = () => {
                   rows='6'
                   variant='outlined'
                   placeholder='受付画面表示メッセージ'
+                />
+              </Box>
+              <Box mb={4} borderBottom={`1px solid ${grey[300]}`}></Box>
+              <ComponentHeader
+                title='メール設定'
+                description='お客様への送信メールに使用する情報を設定します。'
+                refUrl=''
+              />
+              <Box mb={{xs: 5, xl: 8}}>
+                <MyTextField
+                  label='電話番号'
+                  name='phone_number'
+                  variant='outlined'
+                  className={classes.myTextField}
+                />
+              </Box>
+              <Box mb={{xs: 4, xl: 8}}>
+                <MyTextField
+                  name='mail_sign'
+                  multiline
+                  className={classes.fieldRoot}
+                  rows='6'
+                  variant='outlined'
+                  placeholder='署名'
                 />
               </Box>
               <Box

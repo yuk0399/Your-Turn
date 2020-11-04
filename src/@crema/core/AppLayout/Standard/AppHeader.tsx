@@ -16,6 +16,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppState} from '../../../../redux/store';
 import { BookingData } from 'types/models/Analytics';
 import HighlightOffOutlinedIcon from '@material-ui/icons/HighlightOffOutlined';
+import { getNowTimeWithCollon, getTodayStringWithSlash } from 'shared/function/common';
 
 interface AppHeaderProps {}
 
@@ -64,23 +65,31 @@ const AppHeader: React.FC<AppHeaderProps> = () => {
   }
 
   const getBookingStatusInfo = () => {
-    let flg = false;
-    var now = new Date();
-    var month =  ("0"+(now.getMonth()+1)).slice(-2);
-    var day =  ("0"+now.getDate()).slice(-2);
-    var date = now.getFullYear() + "/" + month + "/" + day
-    if (bookingConfig?.bookingFlg && bookingConfig?.flgDate === date) {
-      flg = true;
+    let temporaryFlg = false;
+    const date = getTodayStringWithSlash();
+
+    if(!bookingConfig) return closingInfo;
+    if (bookingConfig.bookingFlg && bookingConfig.flgDate === date) {
+      temporaryFlg = true;
     }
-    if (flg)
+
+    // 受付時間判定
+    let ontime = false;
+    const time = getNowTimeWithCollon();
+    if (time >= bookingConfig.open_time1　+ ":00" && time <= bookingConfig.close_time1　+ ":00" ||
+      time >= bookingConfig.open_time2　+ ":00" && time <= bookingConfig.close_time2　+ ":00" ) {
+        ontime = true;
+      }
+
+    if (temporaryFlg)
       return temporaryCloseInfo;
     else
-      return openingInfo;
+      return ontime ? openingInfo : closingInfo;
   };
 
   const openingInfo = {
       id: 1,
-      icon: require('assets/images/status_play.png'),
+      icon: '', // require('assets/images/status_play.png'),
       count: getWaitingCount(),
       suspension: getSuspensionCount(),
       details: '予約受付中',
@@ -89,16 +98,16 @@ const AppHeader: React.FC<AppHeaderProps> = () => {
 
     const closingInfo = {
       id: 2,
-      icon: require('assets/images/status_stop.png'),
+      icon: '', // require('assets/images/status_stop.png'),
       count: getWaitingCount(),
       suspension: getSuspensionCount(),
-      details: '予約停止中',
+      details: '予約受付停止中',
       bgColor: '#b5b0b0',
     }
 
     const temporaryCloseInfo = {
       id: 3,
-      icon: require('assets/images/status_temp_stop.png'),
+      icon: '', // require('assets/images/status_temp_stop.png'),
       count: getWaitingCount(),
       suspension: getSuspensionCount(),
       details: '予約一時停止中',

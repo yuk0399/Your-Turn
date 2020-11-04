@@ -1,5 +1,6 @@
-import { BookingConfig } from './../../types/models/Analytics';
+import { BookingConfig, MailContent } from './../../types/models/Analytics';
 import firebase, { FirebaseError } from 'firebase';
+import {useDispatch} from 'react-redux';
 // import 'firebase/auth';
 // import 'firebase/firestore';
 import {fetchError, fetchStart, fetchSuccess} from './Common';
@@ -22,7 +23,25 @@ import {
 } from '../../types/actions/Common.action';
 
 import { Bookings, BookingData } from 'types/models/Analytics';
+import { getTodayString, getTodayStringWithSlash } from 'shared/function/common';
 
+export const onSendMail = (mail: MailContent) => {
+  console.log('Start onSendMail')
+  return (dispatch: Dispatch<AppActions>) => {
+    dispatch(fetchStart());
+    var user = firebase.auth().currentUser;
+    if (user) {
+      const httpEvent = firebase.functions().httpsCallable('sendPersonalEmail');      
+      httpEvent({mail: mail}).then((res) => {
+        dispatch(showMessage("お知らせメールを送信しました。"))
+        console.log("An Email has been sent:" + res);
+      }).catch((error) => {
+        console.log(error.message);
+        dispatch(fetchError(error.message));
+      });
+    };
+  };
+}
 
 export const onGetConfigData = (uid: string = '') => {
   return (dispatch: Dispatch<AppActions>) => {
@@ -48,7 +67,9 @@ export const onGetConfigData = (uid: string = '') => {
               title: '',
               notes: '',
               bookingFlg: false,
-              flgDate: ''
+              flgDate: '',
+              phone_number: '',
+              mail_sign: '',
             }
             data.forEach(snapshot => {
               switch (snapshot.key) {
@@ -79,6 +100,12 @@ export const onGetConfigData = (uid: string = '') => {
                 case 'flgDate':
                   config.flgDate = snapshot.val();
                   break;
+                case 'phone_number':
+                  config.phone_number = snapshot.val();
+                  break;
+                case 'mail_sign':
+                  config.mail_sign = snapshot.val();
+                  break;
                 default:
                   console.log('snapshot.key default');
                   console.log(snapshot.key);
@@ -105,12 +132,9 @@ export const onUpdateBookingFlg = (flg: Boolean) => {
     var user = firebase.auth().currentUser;
     if (user) {
       var ref = firebase.database().ref('/config/' + user.uid);
-      var now = new Date();
-      var month =  ("0"+(now.getMonth()+1)).slice(-2);
-      var day =  ("0"+now.getDate()).slice(-2);
       ref.update({
         bookingFlg: flg,
-        flgDate: now.getFullYear() + "/" + month + "/" + day,
+        flgDate: getTodayStringWithSlash(),
       }).then((data) => {
           dispatch(fetchSuccess());
           dispatch(showMessage("受付状況を更新しました。"));        
@@ -136,11 +160,13 @@ export const onUpdateBookingConfig = (config: BookingConfig) => {
         open_time2: config.open_time2,
         close_time2: config.close_time2,
         title: config.title,
-        notes: config.notes
+        notes: config.notes,
+        phone_number: config.phone_number,
+        mail_sign: config.mail_sign,
       }).then((data) => {
         console.log('Done to update config')
         dispatch(fetchSuccess());
-        dispatch(showMessage("受付設定を更新しました。"));
+        dispatch(showMessage("待受設定を更新しました。"));
         onGetConfigData();
       })
       .catch((error) => {
@@ -162,7 +188,7 @@ export const onGetBookingData = (uid: string = '') => {
     }
 
     if (userId.length > 0) {
-      var ref = firebase.database().ref('/bookings/' + userId);
+      var ref = firebase.database().ref('/bookings/' + userId + "/" + getTodayString());
       ref.on('value', function(data) {
           dispatch(fetchSuccess());
           // console.log(data.val());
@@ -190,12 +216,18 @@ export const onGetBookingData = (uid: string = '') => {
   };
 };
 
-export const onCreateBookingData = (booking: BookingData) => {
+export const onCreateBookingData = (booking: BookingData, mail?: boolean, uid: string = '') => {
   return (dispatch: Dispatch<AppActions>) => {
     dispatch(fetchStart());
-    var user = firebase.auth().currentUser;
-    if (user) {
-      var ref = firebase.database().ref('/bookings/' + user.uid);
+    let userId = uid;
+    if (uid === '') {
+      var user = firebase.auth().currentUser;
+      if (user)
+        userId = user.uid;
+    }
+    
+    if (userId !== '') {
+      var ref = firebase.database().ref('/bookings/' + userId + "/" + getTodayString());
       // max-idの取得
       var max_id = 0;
       ref.orderByChild("orderNumber").limitToLast(1).on("value", function(snapshot) { 
@@ -215,7 +247,21 @@ export const onCreateBookingData = (booking: BookingData) => {
           console.log("Booked Order Number in onCreateBookinData:" + booking.orderNumber)
           dispatch({type: GET_LATEST_BOOKED_NUMBER, payload: booking.orderNumber});
           dispatch(showMessage("予約を追加しました。"));
+          
         })
+        // .then(() => {
+        //   // メール送信
+        //   if (mail) {
+        //     console.log('start to send email')
+        //     const mail: MailContent = {
+        //       to: booking.email,
+        //       subject: '予約受付のお知らせ',
+        //       content: '受付番号「' + booking.orderNumber + '」で予約を受け付けました。',
+        //     };
+        //     const dispatch2 = useDispatch();
+        //     dispatch2(onSendMail(mail));
+        //   }
+        // })  
         .catch((error) => {
           dispatch(fetchError(error.message));
         });
@@ -228,7 +274,7 @@ export const onUpdateSelectedBooking = (bookingId: string, status: number) => {
     dispatch(fetchStart());
     var user = firebase.auth().currentUser;
     if (user) {
-      var ref = firebase.database().ref('/bookings/' + user.uid + "/" + bookingId);
+      var ref = firebase.database().ref('/bookings/' + user.uid + "/" + getTodayString() + "/" + bookingId);
       ref.update({
         status: status
       }).then((data) => {
@@ -248,7 +294,7 @@ export const onDeleteSelectedBooking = (bookingId: string) => {
     dispatch(fetchStart());
     var user = firebase.auth().currentUser;
     if (user) {
-      var ref = firebase.database().ref('/bookings/' + user.uid + "/" + bookingId);
+      var ref = firebase.database().ref('/bookings/' + user.uid + "/" + getTodayString() + "/" + bookingId);
       ref.remove().then((data) => {
           dispatch(fetchSuccess());
           dispatch(showMessage("予約を削除しました。"));

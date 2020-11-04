@@ -17,7 +17,7 @@ const AddBookingDialog: React.FC<AddBookingDialogProps> = ({
   return (
     <Dialog open={open} onClose={() => onCloseAction(false)}>
       <Box width="60%" minWidth="500px">
-        <AddBookingForm/>
+        <AddBookingForm userId={''} afterBookingAction={() => {}}/>
       </Box>
     </Dialog>
   )
