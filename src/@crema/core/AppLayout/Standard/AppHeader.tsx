@@ -4,7 +4,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Menu from '@material-ui/core/Menu';
-import {toggleNavCollapsed} from '../../../../redux/actions';
+import {onGetUserInfo, toggleNavCollapsed} from '../../../../redux/actions';
 import Hidden from '@material-ui/core/Hidden';
 import Box from '@material-ui/core/Box';
 import useStyles from './AppHeader.style';
@@ -16,7 +16,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AppState} from '../../../../redux/store';
 import { BookingData } from 'types/models/Analytics';
 import HighlightOffOutlinedIcon from '@material-ui/icons/HighlightOffOutlined';
-import { getNowTimeWithCollon, getTodayStringWithSlash } from 'shared/function/common';
+import { getNowTimeWithCollon, getTodayString, getTodayStringWithSlash } from 'shared/function/common';
+import { useAuthUserAndInfo } from '@crema/utility/AppHooks';
 
 interface AppHeaderProps {}
 
@@ -25,11 +26,14 @@ const AppHeader: React.FC<AppHeaderProps> = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(onGetBookingData());
+    dispatch(onGetUserInfo());
   }, [dispatch]);
 
   const {bookings: bookingData, config: bookingConfig} = useSelector<AppState, AppState['dashboard']>(
     ({dashboard}) => dashboard
   );
+  
+  const userData = useAuthUserAndInfo();
 
   const getWaitingCount = () => {
     if (bookingData) {
@@ -81,10 +85,16 @@ const AppHeader: React.FC<AppHeaderProps> = () => {
         ontime = true;
       }
 
-    if (temporaryFlg)
-      return temporaryCloseInfo;
-    else
-      return ontime ? openingInfo : closingInfo;
+    let loggedinToday = (userData?.userInfo?.signinDate && userData?.userInfo?.signinDate === getTodayString());
+    if (loggedinToday) {
+      if (temporaryFlg)
+        return temporaryCloseInfo;
+      else
+        return ontime ? openingInfo : closingInfo;
+    } else {
+        console.log('admin has not logged in today')
+        return closingInfo;
+    }
   };
 
   const openingInfo = {

@@ -13,7 +13,6 @@ import {
 } from '../../types/actions/Auth.actions';
 import firebase, { FirebaseError } from 'firebase';
 
-
 export const onGetUserInfo = (uid: string = '') => {
   
   return (dispatch: Dispatch<AppActions>) => {
@@ -64,6 +63,31 @@ export const onGetUserInfo = (uid: string = '') => {
 };
 }
 
+export const onUpdateBookingDate = () => {
+  
+  return (dispatch: Dispatch<AppActions>) => {
+    dispatch(fetchStart());
+    var user = auth.currentUser;
+
+    try {
+      if (user) {
+        var ref = firebase.database().ref('/users/' + user?.uid);
+          ref.update({
+            signinDate: getTodayString(),
+          }).then((data) => {
+            onGetUserInfo();
+            dispatch(showMessage("本日の受付を有効にしました。"));
+          })
+          .catch((error) => {
+            dispatch(fetchError(error.message));
+          });
+      }
+    } catch (error) {
+      dispatch(fetchError(error.message));
+    }
+  }
+}
+
 export const onUpdateNameAndPassword = (name: string, newPassword: string) => {
   console.log("onUpdateNameAndPassword:" + name)
   return (dispatch: Dispatch<AppActions>) => {
@@ -73,9 +97,8 @@ export const onUpdateNameAndPassword = (name: string, newPassword: string) => {
     try {
       if (user) {
         var ref = firebase.database().ref('/users/' + user?.uid);
-          ref.set({
+          ref.update({
             displayName: name,
-            email: user?.email,
           }).then((data) => {
             if (newPassword) {
               user?.updatePassword(newPassword).then(function() {
@@ -85,15 +108,14 @@ export const onUpdateNameAndPassword = (name: string, newPassword: string) => {
                 dispatch(fetchError(error.message));
               });
             }
-            const userInfo: UserInfo = {
-              displayName: name || '',
-              signinDate: getTodayString()
-            }
-            dispatch({type: UPDATE_USER_INFO, payload: userInfo});
+
+            onGetUserInfo();
+
             if (newPassword === '') {
               dispatch(showMessage("アカウント設定を更新しました。"));
               dispatch(fetchSuccess());
             }
+
           } 
           )
           .catch((error) => {
@@ -132,17 +154,13 @@ export const onSignUpFirebaseUser = ({
           };
           dispatch({type: UPDATE_FIREBASE_USER, payload: authUser});
 
+          
+          dispatch(fetchSuccess());
           var ref = firebase.database().ref('/users/' + data.user!.uid);
           ref.set({
             displayName: name,
-            signinDate: getTodayString()
           }).then((data) => {
-            const userInfo: UserInfo = {
-              displayName: authUser.displayName || '',
-              signinDate: getTodayString()
-            }
-            
-            dispatch({type: UPDATE_USER_INFO, payload: userInfo});
+            onGetUserInfo();
             dispatch(fetchSuccess());
           })
           .catch((error) => {
@@ -217,7 +235,7 @@ export const onSignInFirebaseUser = ({
   return (dispatch: Dispatch<AppActions>) => {
     dispatch(fetchStart());
     try {
-      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE)
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
       .then(function() {
         auth.signInWithEmailAndPassword(email, password)
           .then((data) => {
@@ -231,18 +249,18 @@ export const onSignInFirebaseUser = ({
             };
             
             dispatch({type: UPDATE_FIREBASE_USER, payload: user});
-            
-            var ref = firebase.database().ref('/users/' + data.user!.uid);
-            ref.update({
-              signinDate: getTodayString()
-            }).then((data) => {
-              onGetUserInfo();
-              // const userInfo: UserInfo = {
-              //   displayName: user.displayName || '',
-              //   signinDate: getTodayString()
-              // }
-              // dispatch({type: UPDATE_USER_INFO, payload: userInfo});
-            })
+            onGetUserInfo();
+            // var ref = firebase.database().ref('/users/' + data.user!.uid);
+            // ref.update({
+            //   signinDate: getTodayString()
+            // }).then((data) => {
+            //   onGetUserInfo();
+            //   // const userInfo: UserInfo = {
+            //   //   displayName: user.displayName || '',
+            //   //   signinDate: getTodayString()
+            //   // }
+            //   // dispatch({type: UPDATE_USER_INFO, payload: userInfo});
+            // })
           })
           .catch((error) => {
             dispatch(fetchError(error.message));

@@ -22,9 +22,10 @@ import {Fonts} from 'shared/constants/AppEnums';
 import { BookingConfig, BookingData } from 'types/models/Analytics';
 import BookingStats from '../Booking/BookingStats';
 import {blue, red} from '@material-ui/core/colors';
-import {onGetBookingData, onGetConfigData, onUpdateBookingConfig, onUpdateBookingFlg} from '../../../redux/actions';
+import {onGetBookingData, onGetConfigData, onGetUserInfo, onUpdateBookingConfig, onUpdateBookingDate, onUpdateBookingFlg} from '../../../redux/actions';
 import {AppState} from '../../../redux/store';
-import { getTodayStringWithSlash } from 'shared/function/common';
+import { getTodayString, getTodayStringWithSlash } from 'shared/function/common';
+import { useAuthUserAndInfo } from '@crema/utility/AppHooks';
 
 const MyTextField = (props: any) => {
   const [field, meta] = useField(props);
@@ -69,6 +70,20 @@ const useStyles = makeStyles((theme: CremaTheme) => ({
   btnRoot: {
     borderRadius: theme.overrides.MuiCard.root.borderRadius,
     width: '10rem',
+    margin: '0.0rem',
+    fontFamily: Fonts.LIGHT,
+    fontSize: 16,
+    textTransform: 'capitalize',
+    [theme.breakpoints.up('sm')]: {
+      fontSize: 18,
+    },
+    [theme.breakpoints.up('xl')]: {
+      fontSize: 20,
+    },
+  },
+  btnStart: {
+    borderRadius: theme.overrides.MuiCard.root.borderRadius,
+    width: '20rem',
     margin: '0.0rem',
     fontFamily: Fonts.LIGHT,
     fontSize: 16,
@@ -150,6 +165,7 @@ const BookingConfigForm: React.FC = () => {
   useEffect(() => {
     dispatch(onGetBookingData());
     dispatch(onGetConfigData());
+    dispatch(onGetUserInfo());
   }, [dispatch]);
 
   const {bookings: bookingData, config: bookingConfig} = useSelector<AppState, AppState['dashboard']>(
@@ -157,7 +173,8 @@ const BookingConfigForm: React.FC = () => {
   );
 
   const [userImageURL, setUserImageURL] = React.useState(bookingConfig?.photoUrl);
-
+  const userData = useAuthUserAndInfo();
+  
   const getCallingNumber = () => {
     if (bookingData) {
       var list = bookingData.bookingList.slice();
@@ -216,6 +233,16 @@ const BookingConfigForm: React.FC = () => {
     dispatch(onUpdateBookingFlg(flg));
   };
 
+  const isPushedToday = () => {
+    var date = getTodayString();
+    // console.log('isPushedToday: ' + date + ', ' + userData?.userInfo?.signinDate);
+    return (userData?.userInfo?.signinDate === date);
+  };
+  
+  const onUpdateBookingStartDate = () => {
+    dispatch(onUpdateBookingDate());
+  };
+
   const {getRootProps, getInputProps} = useDropzone({
     accept: 'image/*',
     onDrop: (acceptedFiles) => {
@@ -227,7 +254,18 @@ const BookingConfigForm: React.FC = () => {
 
   return (
     <Box flex={1} display='flex' flexDirection='column'>
-      <Box flex={1} display='flex' flexDirection='row'>
+      <Box mb={5}>
+        <Button
+          variant='contained'
+          color='primary'
+          disabled={isPushedToday()}
+          onClick={() => onUpdateBookingStartDate()}
+          className={classes.btnStart}>
+          本日の受付を有効にする
+        </Button>
+      </Box>
+      <Box px={5} borderBottom={`1px solid ${grey[300]}`}></Box>
+      <Box my={5} flex={1} display='flex' flexDirection='row'>
         <Box mr={2}
           display='flex'
           flexDirection='column'
@@ -302,7 +340,7 @@ const BookingConfigForm: React.FC = () => {
           </Box>
         </Box>
       </Box> */}
-      <Box p={5} borderBottom={`1px solid ${grey[300]}`}></Box>
+      <Box px={5} borderBottom={`1px solid ${grey[300]}`}></Box>
       <Box
         px={{xs: 3, sm: 5, xl: 7}}
         pt={{xs: 4, xl: 6}}
