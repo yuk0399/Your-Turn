@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import {Form, Formik, useField} from 'formik';
 import * as yup from 'yup';
 import { useDispatch, useSelector} from 'react-redux';
-import { onCreateBookingData } from '../../../../redux/actions';
+import { onCreateBookingData, onEditSelectedBooking } from '../../../../redux/actions';
 import Box from '@material-ui/core/Box';
 import {makeStyles} from '@material-ui/core/styles';
 import {CremaTheme} from '../../../../types/AppContextPropsType';
@@ -75,46 +75,52 @@ const validationSchema2 = yup.object({
 //   content5: string;
 // }
 
-const initialValues = {
-  name: '',
-  number: 1,
-  medical_number: '',
-  email: '',
-  pet_name1: '',
-  content1: '',
-  pet_name2: '',
-  content2: '',
-  pet_name3: '',
-  content3: '',
-  pet_name4: '',
-  content4: '',
-  pet_name5: '',
-  content5: '',
-}
 
-interface AddBookingFormProps {
+
+interface BookingFormProps {
   userId: string;
   afterBookingAction: () => void;
+  bookingData?: BookingData;
+  isEdit: boolean;
 }
 
-const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAction }) => {
+const BookingForm: React.FC<BookingFormProps> = ({ userId, afterBookingAction, bookingData, isEdit }) => {
   const dispatch = useDispatch();
   const user = useAuthUser();
-  const [petCount, setPetCount] = React.useState(1);
-  const [waitingCount, setWaitingCount] = React.useState(1);
-  const [content1, setContent1] = React.useState('');
-  const [content2, setContent2] = React.useState('');
-  const [content3, setContent3] = React.useState('');
-  const [content4, setContent4] = React.useState('');
-  const [content5, setContent5] = React.useState('');
+  const [petCount, setPetCount] = React.useState(isEdit ? bookingData?.number :1);
+  const [waitingCount, setWaitingCount] = React.useState(isEdit ? bookingData?.waiting_count : 1);
+  const [content1, setContent1] = React.useState(isEdit ? bookingData?.content1 : '');
+  const [content2, setContent2] = React.useState(isEdit ? bookingData?.content2 : '');
+  const [content3, setContent3] = React.useState(isEdit ? bookingData?.content3 : '');
+  const [content4, setContent4] = React.useState(isEdit ? bookingData?.content4 : '');
+  const [content5, setContent5] = React.useState(isEdit ? bookingData?.content5 : '');
   
+  const initialValues = {
+    name: isEdit ? bookingData?.name : '',
+    // number: isEdit ? bookingData?.number :1,
+    medical_number: isEdit ? (bookingData?.medical_number === '初診' ? '' : bookingData?.medical_number) :'',
+    email: isEdit ? bookingData?.email :'',
+    // waiting_count: isEdit ? bookingData?.waiting_count : 1,
+    pet_name1: isEdit ? bookingData?.pet_name1 :'',
+    // content1: isEdit ? bookingData?.content1 :'',
+    pet_name2: isEdit ? bookingData?.pet_name2 :'',
+    // content2: isEdit ? bookingData?.content2 :'',
+    pet_name3: isEdit ? bookingData?.pet_name3 :'',
+    // content3: isEdit ? bookingData?.content3 :'',
+    pet_name4: isEdit ? bookingData?.pet_name4 :'',
+    // content4: isEdit ? bookingData?.content4 :'',
+    pet_name5: isEdit ? bookingData?.pet_name5 :'',
+    // content5: isEdit ? bookingData?.content5 :'',
+  }
+
   const useStyles = makeStyles((theme: CremaTheme) => ({
     formRoot: {
       textAlign: 'left',
     },
     petInputBox: {
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      marginTop: 8,
     },
     petBox: {
       width: '100%',
@@ -124,13 +130,15 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
     },
     petName: {
       marginBottom: 8,
+      marginTop: 8,
       width: '70%',
-      minWidth: 180
+      minWidth: 180,
+      marginRight: '1%',
     },
     petContent: {
+      marginTop: 8,
       marginBottom: 8,
       width: '29%',
-      marginLeft: '1%',
       minWidth: 180
     },
     myTextFieldRoot: {
@@ -280,6 +288,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
         display='flex'
         flexDirection='column'>
         <Formik
+          enableReinitialize
           validateOnChange={true}
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -291,32 +300,53 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
               // setErrors({ content2: 'This is a dummy procedure error' });
               // setSubmitting(false);
               // return;
-              let booking: BookingData = {
-                id: '',
-                orderNumber: 0,
-                name: data.name,
-                status: 0,
-                email: data.email,
-                medical_number: (data.medical_number == '') ? '初診': data.medical_number,
-                number: petCount,
-                waiting_count: waitingCount,
-                content1: content1,
-                pet_name1: data.pet_name1,
-                content2: content2,
-                pet_name2: data.pet_name2,
-                content3: content3,
-                pet_name3: data.pet_name3,
-                content4: content4,
-                pet_name4: data.pet_name4,
-                content5: content5,
-                pet_name5: data.pet_name5,
-                date: getTodayStringWithSlash(),
-                time: getNowTimeWithCollon(),
-                directBooked: (user == null ? false : true),
-                mailGuided: false
-              };
+
+              if  (isEdit) {
+                  if (bookingData) {
+                    bookingData.name = data.name ? data.name : '';
+                    bookingData.email = data.email ? data.email : '';
+                    bookingData.medical_number = data.medical_number ? ((data.medical_number == '') ? '初診': data.medical_number) : '';
+                    bookingData.number = petCount ? petCount : 1;
+                    bookingData.waiting_count = waitingCount ? waitingCount : 1;
+                    bookingData.content1 = content1 ? content1 : '';
+                    bookingData.pet_name1 = data.pet_name1 ? data.pet_name1 : '';
+                    bookingData.content2 = content2 ? content2 : '';
+                    bookingData.pet_name2 = data.pet_name2 ? data.pet_name2 : '';
+                    bookingData.content3 = content3 ? content3 : '';
+                    bookingData.pet_name3 = data.pet_name3 ? data.pet_name3 : '';
+                    bookingData.content4 = content4 ? content4 : '';
+                    bookingData.pet_name4 = data.pet_name4 ? data.pet_name4 : '';
+                    bookingData.content5 = content5 ? content5 : '';
+                    dispatch(onEditSelectedBooking(bookingData));
+                  }
+              } else {
+                let booking: BookingData = {
+                  id: '',
+                  orderNumber: 0,
+                  name: data.name ? data.name : '',
+                  status: 0,
+                  email: data.email ? data.email : '',
+                  medical_number: data.medical_number ? ((data.medical_number == '') ? '初診': data.medical_number) : '',
+                  number: petCount? petCount : 1,
+                  waiting_count: waitingCount? waitingCount : 1,
+                  content1: content1 ? content1 : '',
+                  pet_name1: data.pet_name1 ? data.pet_name1 : '',
+                  content2: content2 ? content2 : '',
+                  pet_name2: data.pet_name2 ? data.pet_name2 : '',
+                  content3: content3 ? content3 : '',
+                  pet_name3: data.pet_name3 ? data.pet_name3 : '',
+                  content4: content4 ? content4 : '',
+                  pet_name4: data.pet_name4 ? data.pet_name4 : '',
+                  content5: content5 ? content5 : '',
+                  pet_name5: data.pet_name5 ? data.pet_name5 : '',
+                  date: getTodayStringWithSlash(),
+                  time: getNowTimeWithCollon(),
+                  directBooked: (user == null ? false : true),
+                  mailGuided: false
+                };
+                dispatch(onCreateBookingData(booking, true, userId));
+              }
               
-              dispatch(onCreateBookingData(booking, true, userId));
               setSubmitting(false);
               resetForm();
               setPetCount(1);
@@ -389,7 +419,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
                 ・お知らせメールが届きません。<br/>
                 ・登録後に表示される予約受付番号をスクリーンショットするか、メモをとるようお願いいたします。
               </Box>
-              <Box mb={{xs: 5, xl: 8}} >
+              <Box>
                 <FormControl variant='outlined' className={classes.formControl}>
                   <InputLabel ref={inputLabel1} htmlFor='pet-count'>
                   頭数
@@ -442,7 +472,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
                     </FormControl>
                   </Box>
                 </Box>
-                <Box className={classes.petBox} visibility={ (petCount > 1) ? 'visible' : 'collapse'} height={ (petCount > 1) ? 'auto' : 5}>
+                <Box className={classes.petBox} visibility={ (petCount && petCount > 1) ? 'visible' : 'collapse'} height={ (petCount && petCount > 1) ? 'auto' : 5}>
                   <Box className={classes.petName}>
                     <MyTextField
                       label='ペット名'
@@ -472,7 +502,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
                     </FormControl>
                   </Box>
                 </Box>
-                <Box className={classes.petBox} visibility={ (petCount > 2) ? 'visible' : 'collapse'} height={ (petCount > 2) ? 'auto' : 5}>
+                <Box className={classes.petBox} visibility={ (petCount && petCount > 2) ? 'visible' : 'collapse'} height={ (petCount && petCount > 2) ? 'auto' : 5}>
                   <Box className={classes.petName}>
                     <MyTextField
                       label='ペット名'
@@ -502,7 +532,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
                     </FormControl>
                   </Box>
                 </Box>
-                <Box className={classes.petBox} visibility={ (petCount > 3) ? 'visible' : 'collapse'} height={ (petCount > 3) ? 'auto' : 5}>
+                <Box className={classes.petBox} visibility={ (petCount && petCount > 3) ? 'visible' : 'collapse'} height={ (petCount && petCount > 3) ? 'auto' : 5}>
                   <Box className={classes.petName}>
                     <MyTextField
                       label='ペット名'
@@ -532,7 +562,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
                     </FormControl>
                   </Box>
                 </Box>
-                <Box className={classes.petBox} visibility={ (petCount > 4) ? 'visible' : 'collapse'} height={ (petCount > 4) ? 'auto' : 5}>
+                <Box className={classes.petBox} visibility={ (petCount && petCount > 4) ? 'visible' : 'collapse'} height={ (petCount && petCount > 4) ? 'auto' : 5}>
                   <Box className={classes.petName}>
                     <MyTextField
                       label='ペット名'
@@ -575,7 +605,7 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
                   disabled={isSubmitting}
                   className={classes.btnRoot}
                   type='submit'>
-                  登録
+                  {isEdit ? '更新' : '登録'}
                 </Button>
               </Box>
             </Form>
@@ -586,4 +616,4 @@ const AddBookingForm: React.FC<AddBookingFormProps> = ({ userId, afterBookingAct
   );
 };
 
-export default AddBookingForm;
+export default BookingForm;

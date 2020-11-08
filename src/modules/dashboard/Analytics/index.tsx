@@ -7,7 +7,7 @@ import {onGetBookingData, onGetConfigData} from '../../../redux/actions';
 import OrderNTransaction from './OrderNTransaction';
 import {AppState} from '../../../redux/store';
 import AppCard from '@crema/core/AppCard';
-import AddBookingDialog from './CreateBooking/AddBookingDialog'
+import BookingDialog from './CreateBooking/BookingDialog'
 import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
@@ -52,7 +52,7 @@ const Analitycs = () => {
     setMailDialogOpen(true);
   };
 
-  const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+  // const [isAddDialogOpen, setAddDialogOpen] = useState(false);
  
   if (!bookingData?.bookingList) {
     return (
@@ -140,13 +140,13 @@ const Analitycs = () => {
           </GridContainer>
         </Box>
         )}
-      {isAddDialogOpen ? (
-        <AddBookingDialog
+      {/* {isAddDialogOpen ? (
+        <BookingDialog
           open={isAddDialogOpen}
           onCloseAction={setAddDialogOpen}
           onAddAction={() => setAddDialogOpen(true)}
         />
-      ) : null}
+      ) : null} */}
       <InfoView />
     </>
   );

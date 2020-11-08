@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import QRCode from 'qrcode.react';
-import AddBookingForm from '../Analytics/CreateBooking/AddBookingForm';
+import BookingForm from '../Analytics/CreateBooking/BookingForm';
 import AfterBooking from '../Analytics/CreateBooking/AfterBooking';
 import Card from '@material-ui/core/Card';
 import Box from '@material-ui/core/Box';
@@ -325,7 +325,7 @@ const Booking = () => {
                   </Box>
             </AccordionSummary>
             <AccordionDetails className={classes.details}>
-              <AddBookingForm userId={userId} afterBookingAction={afterBookingAction}/>
+              <BookingForm userId={userId} afterBookingAction={afterBookingAction} isEdit={false}/>
             </AccordionDetails>
           </Accordion>
         </Card>

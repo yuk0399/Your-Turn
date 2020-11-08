@@ -8,14 +8,16 @@ import {CremaTheme} from '../../../../../types/AppContextPropsType';
 import { Fonts } from 'shared/constants/AppEnums';
 import DeleteIcon from '@material-ui/icons/DeleteOutline';
 import MailOutlineIcon from '@material-ui/icons/MailOutline';
-import { onUpdateSelectedBooking, onDeleteSelectedBooking } from '../../../../../redux/actions';
+import { onUpdateSelectedBooking, onDeleteSelectedBooking, onEditSelectedBooking } from '../../../../../redux/actions';
 import {useDispatch} from 'react-redux';
 import ConfirmationDialog from '@crema/core/ConfirmationDialog';
 import BookmarkBorderOutlinedIcon from '@material-ui/icons/BookmarkBorderOutlined';
 import MailOutlinedIcon from '@material-ui/icons/MailOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 import MailDialog from '../../Mail/MailDialog';
-import { string } from 'prop-types';
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import BookingDialog from '../../CreateBooking/BookingDialog';
+
 
 interface TableItemProps {
   data: BookingData;
@@ -66,6 +68,7 @@ const TableItem: React.FC<TableItemProps> = ({data, config}) => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [isMailDialogOpen, setMailDialogOpen] = useState(false);
   const [mailToList, setMailToList] = useState(['']);
   
@@ -233,6 +236,12 @@ const TableItem: React.FC<TableItemProps> = ({data, config}) => {
             <IconButton
               // variant='contained'
               className={classes.outlineBtn}
+              onClick={() => setEditDialogOpen(true)}>
+                <EditOutlinedIcon/>
+            </IconButton>
+            <IconButton
+              // variant='contained'
+              className={classes.outlineBtn}
               onClick={() => setDeleteDialogOpen(true)}>
                 <DeleteIcon/>
             </IconButton>
@@ -255,6 +264,13 @@ const TableItem: React.FC<TableItemProps> = ({data, config}) => {
         mailSign={(config && config.mail_sign)? config.mail_sign : ''}>
       </MailDialog>
     ) : null}
+      {isEditDialogOpen ? (
+        <BookingDialog
+          open={isEditDialogOpen}
+          onCloseAction={() => setEditDialogOpen(false)}
+          bookingData={data}
+        />
+      ) : null}
     </TableRow>
   );
 };

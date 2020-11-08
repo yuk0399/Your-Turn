@@ -1,4 +1,4 @@
-import { BookingConfig, MailContent } from './../../types/models/Analytics';
+import { BookingConfig, MailContent, BookingData, Bookings } from './../../types/models/Analytics';
 import firebase, { FirebaseError } from 'firebase';
 import {useDispatch} from 'react-redux';
 // import 'firebase/auth';
@@ -22,7 +22,6 @@ import {
   TOGGLE_APP_DRAWER,
 } from '../../types/actions/Common.action';
 
-import { Bookings, BookingData } from 'types/models/Analytics';
 import { getTodayString, getTodayStringWithSlash } from 'shared/function/common';
 
 export const onSendMail = (mail: MailContent) => {
@@ -306,3 +305,22 @@ export const onDeleteSelectedBooking = (bookingId: string) => {
     }
   };
 };
+
+export const onEditSelectedBooking = (booking: BookingData) => {
+  return (dispatch: Dispatch<AppActions>) => {
+    dispatch(fetchStart());
+    var user = firebase.auth().currentUser;
+    if (user) {
+      var ref = firebase.database().ref('/bookings/' + user.uid + "/" + getTodayString() + "/" + booking.id);
+      ref.update(booking).then((data) => {
+          dispatch(fetchSuccess());
+          dispatch(showMessage("予約を更新しました。"));
+          onGetBookingData();
+        })
+        .catch((error) => {
+          dispatch(fetchError(error.message));
+        });
+    }
+  };
+};
+
