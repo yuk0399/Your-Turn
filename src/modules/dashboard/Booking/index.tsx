@@ -40,7 +40,8 @@ const useStyles = makeStyles((theme: CremaTheme) => ({
     },
   },
   scrollRoot: {
-    height: 'calc(100vh - 110px)',
+    width: '100%',
+    height: '100vh',
   },
   stopBooking: {
     width: '98%',
@@ -239,6 +240,7 @@ const Booking = () => {
   }
 
   return (
+    <Scrollbar className={classes.scrollRoot}>
     <Box display='flex' flexDirection='column' alignItems="center"> 
       <Box width='100%' display="flex" flexDirection="row" justifyContent='space-between' alignItems='baseline'>
         <Box className={classes.headerBox}></Box>
@@ -258,7 +260,6 @@ const Booking = () => {
           <StopBooking/>
         </Box>
       )}
-      <Scrollbar className={classes.scrollRoot}>
       <Box display='flex' flexDirection='column' alignItems="center"> 
       <Box width='100%' display="flex" flexDirection="row" justifyContent='space-around' className={classes.statsbox} >
         <Box width='48%'>
@@ -335,10 +336,9 @@ const Booking = () => {
         )}
       </Box>
       </Box>
-      </Scrollbar>
       <InfoView />
     </Box>
-    
+    </Scrollbar>
   );
 };
 

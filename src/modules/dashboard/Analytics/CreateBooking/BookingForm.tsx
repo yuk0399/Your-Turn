@@ -1,7 +1,7 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import {Form, Formik, useField} from 'formik';
+import {Form, Formik, FormikErrors, useField} from 'formik';
 import * as yup from 'yup';
 import { useDispatch, useSelector} from 'react-redux';
 import { onCreateBookingData, onEditSelectedBooking } from '../../../../redux/actions';
@@ -58,22 +58,22 @@ const validationSchema2 = yup.object({
     //   })),
 });
 
-// interface FormValues {
-//   name: string;
-//   number: number;
-//   medical_number: string;
-//   email: string;
-//   pet_name1: string;
-//   content1: string;
-//   pet_name2: string;
-//   content2: string;
-//   pet_name3: string;
-//   content3: string;
-//   pet_name4: string;
-//   content4: string;
-//   pet_name5: string;
-//   content5: string;
-// }
+interface FormValues {
+  name?: string;
+  number?: number;
+  medical_number?: string;
+  email?: string;
+  pet_name1?: string;
+  content1?: string;
+  pet_name2?: string;
+  content2?: string;
+  pet_name3?: string;
+  content3?: string;
+  pet_name4?: string;
+  content4?: string;
+  pet_name5?: string;
+  content5?: string;
+}
 
 
 
@@ -89,13 +89,13 @@ const BookingForm: React.FC<BookingFormProps> = ({ userId, afterBookingAction, b
   const user = useAuthUser();
   const [petCount, setPetCount] = React.useState(isEdit ? bookingData?.number :1);
   const [waitingCount, setWaitingCount] = React.useState(isEdit ? bookingData?.waiting_count : 1);
-  const [content1, setContent1] = React.useState(isEdit ? bookingData?.content1 : '');
-  const [content2, setContent2] = React.useState(isEdit ? bookingData?.content2 : '');
-  const [content3, setContent3] = React.useState(isEdit ? bookingData?.content3 : '');
-  const [content4, setContent4] = React.useState(isEdit ? bookingData?.content4 : '');
-  const [content5, setContent5] = React.useState(isEdit ? bookingData?.content5 : '');
+  const [content1, setContent1] = React.useState(isEdit ? bookingData?.content1 : '具合が悪い');
+  const [content2, setContent2] = React.useState(isEdit ? bookingData?.content2 : '具合が悪い');
+  const [content3, setContent3] = React.useState(isEdit ? bookingData?.content3 : '具合が悪い');
+  const [content4, setContent4] = React.useState(isEdit ? bookingData?.content4 : '具合が悪い');
+  const [content5, setContent5] = React.useState(isEdit ? bookingData?.content5 : '具合が悪い');
   
-  const initialValues = {
+  const initialValues: FormValues = {
     name: isEdit ? bookingData?.name : '',
     // number: isEdit ? bookingData?.number :1,
     medical_number: isEdit ? (bookingData?.medical_number === '初診' ? '' : bookingData?.medical_number) :'',
@@ -242,9 +242,27 @@ const BookingForm: React.FC<BookingFormProps> = ({ userId, afterBookingAction, b
     }
   }, []);
 
+  // const validationSchema2={yup.lazy(values => {
+  //   if (values.number === 'noPet') {
+  //       return yup.object().shape({
+  //         name: yup.string().required('飼い主様名を入力してください。'),
+  //         email: yup.string().email('メールアドレスの形式に誤りがあります。'),
+  //         pet_name1: yup.string().required('ペット名を入力してください。'),
+  //       });
+  //   } else {
+  //       return yup.object().shape({
+  //         name: yup.string().required('飼い主様名を入力してください。'),
+  //         email: yup.string().email('メールアドレスの形式に誤りがあります。'),
+  //         pet_name1: yup.string().required('ペット名を入力してください。'),
+  //       });
+  //   }
+  //   })}
+
   const validationSchema = yup.object({
     name: yup.string().required('飼い主様名を入力してください。'),
+    email: yup.string().email('メールアドレスの形式に誤りがあります。'),
     pet_name1: yup.string().required('ペット名を入力してください。'),
+    // content1: yup.string().required('診察内容を選択してください。'),
     // pet_name2: yup.string().notRequired(),
     // content2: yup.string().notRequired(),
     // pet_name2: yup.string().required('ペット名を入力してください。').transform(value => {
@@ -291,7 +309,31 @@ const BookingForm: React.FC<BookingFormProps> = ({ userId, afterBookingAction, b
           enableReinitialize
           validateOnChange={true}
           initialValues={initialValues}
-          validationSchema={validationSchema}
+          // validationSchema={validationSchema}
+          validate={(values: FormValues) => {
+            let errors: FormikErrors<FormValues> = {};
+            if(!values.name) {
+              errors.name = '飼い主様名を入力してください。';
+            }
+            if(!values.pet_name1) {
+              errors.pet_name1 = 'ペット名を入力してください。';
+            }
+            if(petCount && petCount > 1 && !values.pet_name2) {
+              errors.pet_name2 = 'ペット名を入力してください。';
+            }
+            if(petCount && petCount > 2 && !values.pet_name3) {
+              errors.pet_name3 = 'ペット名を入力してください。';
+            }
+            if(petCount && petCount > 3 && !values.pet_name4) {
+              errors.pet_name4 = 'ペット名を入力してください。';
+            }
+            if(petCount && petCount > 4 && !values.pet_name5) {
+              errors.pet_name5 = 'ペット名を入力してください。';
+            }
+            
+            return errors;
+          }}
+
           onSubmit={(data, {setErrors, setSubmitting, resetForm}) => {
             console.log('onSubmit')
               setSubmitting(true);
@@ -391,6 +433,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ userId, afterBookingAction, b
                   <Select
                     labelWidth={labelWidth2}
                     value={waitingCount}
+                    name='waiting_count'
                     inputProps={{
                       name: 'waiting_count',
                       id: 'waiting-count',
@@ -460,6 +503,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ userId, afterBookingAction, b
                         labelWidth={labelWidth}
                         value={content1}
                         onChange={handleChange1}
+                        name='content1'
                         inputProps={{
                           name: 'content1',
                           id: 'content-selection1',
