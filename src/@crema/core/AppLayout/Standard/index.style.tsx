@@ -62,25 +62,25 @@ const useStyles = makeStyles((theme: CremaTheme) => {
       },
 
       '& > .scrollbar-container': {
-        padding: '20px 20px 0',
+        // padding: '20px 20px 0',
         display: 'flex',
         flexDirection: 'column',
-        [theme.breakpoints.up('md')]: {
-          padding: '30px 32px 0',
-        },
+        // [theme.breakpoints.up('md')]: {
+        //   padding: '30px 32px 0',
+        // },
       },
     },
     mainContainerFull: {
       width: '100vw',
       paddingBottom: footer ? 0 : 10,
       '& > .scrollbar-container': {
-        padding: '20px 20px 0',
+        // padding: '20px 20px 0',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        [theme.breakpoints.up('md')]: {
-          padding: '30px 32px 0',
-        },
+        // [theme.breakpoints.up('md')]: {
+        //   padding: '30px 32px 0',
+        // },
       },
     },
     boxedLayout: {

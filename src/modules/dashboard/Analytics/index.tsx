@@ -56,7 +56,7 @@ const Analitycs = () => {
  
   if (!bookingData?.bookingList) {
     return (
-      <Box>読込み中...</Box>
+      <Box padding={'20px'}>読込み中...</Box>
       );
   } else {
     return (
@@ -81,7 +81,7 @@ const Analitycs = () => {
         </Button>
       </Box> */}
       { bookingData?.bookingList && bookingData?.bookingList.length > 0 ? (
-        <Box >
+        <Box padding={'20px'}>
           <GridContainer>
           <Grid item md={12}>
               <OrderNTransaction
@@ -127,7 +127,7 @@ const Analitycs = () => {
           </GridContainer>
         </Box>
       ) : (
-        <Box >
+        <Box padding={'20px'}>
           <GridContainer>
             <Grid item md={12}>
             <AppCard

@@ -253,7 +253,7 @@ const BookingConfigForm: React.FC = () => {
 
 
   return (
-    <Box flex={1} display='flex' flexDirection='column'>
+    <Box flex={1} display='flex' flexDirection='column' margin={'20px'}>
       <Box mb={5}>
         <Button
           variant='contained'

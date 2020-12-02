@@ -194,7 +194,7 @@ export const sendAutoOrderEmail = functions.database.ref('/bookings/{book_id}/{d
                             to: booking.bookingData.email,
                             subject: "ご来院のお知らせ　Your-Turn",
                             text: booking.bookingData.name 
-                            + "様\n\n"
+                            + " 様\n\n"
                             + "ご予約の受付順番が近づいています。\n"
                             + "ご来院くださいますようお願いいたします。\n\n"
                             + "＜注意事項＞\n"
@@ -252,7 +252,9 @@ export const getWaitingInfo = functions.https.onRequest((request, response) => {
                     }
                 });
                 waitingInfo.waiting_count = list.length;
-                waitingInfo.checking_number = list[0].orderNumber;                
+                let checkNum: number = 0;
+                if (list.length > 0) checkNum = list[0].orderNumber;
+                waitingInfo.checking_number = checkNum;
             } else {
                 console.log('there is no record');
             }

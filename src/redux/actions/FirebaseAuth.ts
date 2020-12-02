@@ -249,18 +249,13 @@ export const onSignInFirebaseUser = ({
             };
             
             dispatch({type: UPDATE_FIREBASE_USER, payload: user});
-            onGetUserInfo();
-            // var ref = firebase.database().ref('/users/' + data.user!.uid);
-            // ref.update({
-            //   signinDate: getTodayString()
-            // }).then((data) => {
-            //   onGetUserInfo();
-            //   // const userInfo: UserInfo = {
-            //   //   displayName: user.displayName || '',
-            //   //   signinDate: getTodayString()
-            //   // }
-            //   // dispatch({type: UPDATE_USER_INFO, payload: userInfo});
-            // })
+            // onGetUserInfo();
+            var ref = firebase.database().ref('/users/' + data.user!.uid);
+            ref.update({
+              signinDate: getTodayString()
+            }).then((data) => {
+              onGetUserInfo();
+            })
           })
           .catch((error) => {
             dispatch(fetchError(error.message));

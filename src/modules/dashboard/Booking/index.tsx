@@ -41,7 +41,11 @@ const useStyles = makeStyles((theme: CremaTheme) => ({
   },
   scrollRoot: {
     width: '100%',
-    height: '100vh',
+    height: 'calc(100vh - 5rem)',
+  },
+  scrollRootForUser: {
+    width: '100%',
+    height: 'calc(100vh - 6rem)',
   },
   stopBooking: {
     width: '98%',
@@ -49,7 +53,7 @@ const useStyles = makeStyles((theme: CremaTheme) => ({
     marginBottom: 8,
   },
   headerBox: {
-    width: 90,
+    width: 100,
     [theme.breakpoints.down('xs')]: {
       width: 30,
     },
@@ -216,14 +220,14 @@ const Booking = () => {
     };
 
   const ref = React.createRef<HTMLDivElement>()
-  const scrollToTop = React.useCallback(() => {
-    console.log(ref);
-    console.log(ref!.current);
-    ref!.current!.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    })
-  }, [ ref ])
+  // const scrollToTop = React.useCallback(() => {
+  //   console.log(ref);
+  //   console.log(ref!.current);
+  //   ref!.current!.scrollIntoView({
+  //     behavior: 'smooth',
+  //     block: 'start',
+  //   })
+  // }, [ ref ])
 
   const topRef = useRef<HTMLLabelElement>(null);
   // const ref = useRef<HTMLDivElement>(null);
@@ -240,8 +244,8 @@ const Booking = () => {
   }
 
   return (
-    <Scrollbar className={classes.scrollRoot}>
-    <Box display='flex' flexDirection='column' alignItems="center"> 
+    <Scrollbar className={user? classes.scrollRootForUser : classes.scrollRoot}>
+    <Box display='flex' flexDirection='column' alignItems="center" margin={'1rem'}> 
       <Box width='100%' display="flex" flexDirection="row" justifyContent='space-between' alignItems='baseline'>
         <Box className={classes.headerBox}></Box>
         <label htmlFor='icon-button-file' ref={topRef ? topRef : ''}>

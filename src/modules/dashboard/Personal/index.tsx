@@ -148,7 +148,7 @@ const Personal: React.FC = () => {
   const defaultPassword = 'dummy';
 
   return (
-    <Box>
+    <Box padding={'20px'}>
     <Box flex={1} display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
     <Card className={classes.cardRoot}>
       <Box px={{xs: 6, sm: 10, xl: 15}}>
