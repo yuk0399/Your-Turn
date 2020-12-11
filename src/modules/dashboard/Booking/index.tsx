@@ -243,13 +243,21 @@ const Booking = () => {
     dispatch({type: GET_LATEST_BOOKED_NUMBER, payload: 0});
   }
 
+  const getLogoUrlSource = () => {
+    if (userId === '01s21esUGeRqpBCpyQEKGFTWBUx1') {
+      return require('assets/images/test_logo.png');
+    } else {
+      return require('assets/images/byouin_logo.jpg');
+    }
+  }
+
   return (
     <Scrollbar className={user? classes.scrollRootForUser : classes.scrollRoot}>
     <Box display='flex' flexDirection='column' alignItems="center" margin={'1rem'}> 
       <Box width='100%' display="flex" flexDirection="row" justifyContent='space-between' alignItems='baseline'>
         <Box className={classes.headerBox}></Box>
         <label htmlFor='icon-button-file' ref={topRef ? topRef : ''}>
-          <Avatar variant="square" className={classes.avatar} src={require('assets/images/byouin_logo.jpg')} />
+          <Avatar variant="square" className={classes.avatar} src={getLogoUrlSource()} />
         </label>
         <Box className={classes.headerBox}>
           { (getBookingUrl() === '') ? ( null ) : (            
@@ -309,6 +317,7 @@ const Booking = () => {
               mb={{xs: 3, xl: 6}}
               fontFamily={Fonts.LIGHT}
               fontSize={{xs: 16, sm: 24, xl: 28}}
+              whiteSpace={'pre-wrap'}
               >
                 {bookingConfig ? bookingConfig.notes : ''}
             </Box>
