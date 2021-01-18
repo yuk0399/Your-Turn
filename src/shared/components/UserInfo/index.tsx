@@ -102,6 +102,14 @@ const UserInfo = (props: any) => {
     };
   });
 
+  const getLogoUrlSource = () => {
+    if (userData && userData.authUser && userData.authUser.uid === '01s21esUGeRqpBCpyQEKGFTWBUx1') {
+      return require('assets/images/test_logo_small.png');
+    } else {
+      return require('assets/images/byouin_logo_small.png');
+    }
+  }
+
   const classes = useStyles(props);
 
   return (
@@ -110,7 +118,7 @@ const UserInfo = (props: any) => {
       className={clsx(classes.crUserInfo, 'cr-user-info')}>
       <Box display='flex' alignItems='center'>
         {/* {user && user.photoURL ? ( */}
-          <Avatar className={classes.profilePic} src={require('assets/images/byouin_logo_small.png')} />
+          <Avatar className={classes.profilePic} src={getLogoUrlSource()} />
         {/* ) : ( */}
           {/* <Avatar className={classes.profilePic}>{getUserAvatar()}</Avatar> */}
         {/* )} */}

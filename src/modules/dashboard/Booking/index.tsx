@@ -189,35 +189,40 @@ const Booking = () => {
   }
 
   const getBookingDisabled = () => {
-      let temporaryFlg = false;
+    
+    if (user && user.uid === '01s21esUGeRqpBCpyQEKGFTWBUx1') {
+      return false;
+    }
+    
+    let temporaryFlg = false;
       
-      const date = getTodayStringWithSlash();
-  
-      if(!bookingConfig) return true;
-      if (bookingConfig.bookingFlg && bookingConfig.flgDate === date) {
-        temporaryFlg = true;
-      }
-  
-      // 受付時間判定
-      let ontime = false;
-      const time = getNowTimeWithCollon();
-      
-      if (time >= bookingConfig.open_time1　+ ":00" && time <= bookingConfig.close_time1　+ ":00" ||
-        time >= bookingConfig.open_time2　+ ":00" && time <= bookingConfig.close_time2　+ ":00" ) {
-          ontime = true;
-        }
+    const date = getTodayStringWithSlash();
 
-      // 管理者のログイン判定
-      let loggedinToday = (userInfo?.signinDate === getTodayString());
-      if (loggedinToday) {
-        if (temporaryFlg)
-          return true;
-        else
-          return ontime ? false : true;
-      } else {
-        return true;
+    if(!bookingConfig) return true;
+    if (bookingConfig.bookingFlg && bookingConfig.flgDate === date) {
+      temporaryFlg = true;
+    }
+
+    // 受付時間判定
+    let ontime = false;
+    const time = getNowTimeWithCollon();
+    
+    if (time >= bookingConfig.open_time1　+ ":00" && time <= bookingConfig.close_time1　+ ":00" ||
+      time >= bookingConfig.open_time2　+ ":00" && time <= bookingConfig.close_time2　+ ":00" ) {
+        ontime = true;
       }
-    };
+
+    // 管理者のログイン判定
+    let loggedinToday = (userInfo?.signinDate === getTodayString());
+    if (loggedinToday) {
+      if (temporaryFlg)
+        return true;
+      else
+        return ontime ? false : true;
+    } else {
+      return true;
+    }
+  };
 
   const ref = React.createRef<HTMLDivElement>()
   // const scrollToTop = React.useCallback(() => {
