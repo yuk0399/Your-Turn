@@ -190,7 +190,7 @@ const Booking = () => {
 
   const getBookingDisabled = () => {
     
-    if (user && user.uid === '01s21esUGeRqpBCpyQEKGFTWBUx1') {
+    if (userId === '01s21esUGeRqpBCpyQEKGFTWBUx1') {
       return false;
     }
     
