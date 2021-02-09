@@ -117,7 +117,7 @@ const Booking = () => {
   // const user = useAuthUser();
   const [userId, setUserId] = useState('');
   
-  useEffect(() => {
+  const getUid = () => {
     let uid = ''
     if (history.location.pathname.endsWith("/booking")) {
       uid = (user ? user.uid: '');
@@ -125,6 +125,10 @@ const Booking = () => {
       var pathArr = history.location.pathname.split( '/' );
       uid = (pathArr[pathArr.length-1]);
     }
+    return uid;
+  }
+  useEffect(() => {
+    let uid = getUid();
     dispatch(onGetBookingData(uid));
     dispatch(onGetConfigData(uid));
     dispatch(onGetUserInfo(uid));
@@ -190,7 +194,7 @@ const Booking = () => {
 
   const getBookingDisabled = () => {
     
-    if (userId === '01s21esUGeRqpBCpyQEKGFTWBUx1') {
+    if (getUid() === '01s21esUGeRqpBCpyQEKGFTWBUx1') {
       return false;
     }
     
